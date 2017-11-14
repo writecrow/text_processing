@@ -9,7 +9,9 @@ Included below is a description of tools used:
 
 * Aextractzip2txt.py is a python script which takes a directory of zip files; assuming the name ends in 'zips' or zips/' and unzips the folder as well as converts all the docx files into txt files.  It then put the new txt into a new directory with 'zips' stripped off the dir name.  This script requires the dabfunctions.py script to run.
 
-* Fcheckdraftandfinal.py is a python script which checks filenames for draft and final in the name and then switches them.  Draft to becomes the final, and final turns into a draft.  This script requires the dabfunctions.py script to run.
+* Fcheckdraftandfinal.py is a python script which checks filenames for draft and final in the name and then switches them.  Draft becomes the final, and final turns into a draft.  This script requires the dabfunctions.py script to run.
+
+* dabfunctions.py is a helper script that contains many useful functions (some are commented out).  Fcheckdraftandfinal.py and Aextractzip2txt.py both rely on this script.
 
 #### de-identification
 
