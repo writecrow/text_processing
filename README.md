@@ -20,3 +20,7 @@ Included below is a description of tools used:
 * textnormalization.py is a text cleaning script, it replaces punctuation such as smart quotes, ellipsis, dashes with a regular hyphen, and other non-english characters
 
 #### tagging
+
+#### text-retrieval
+
+* FLLOC_Scraper.py is a script for downloading all zip files off of the FLLOC corpora website.  It is a slow script, last tested to take up to 17 minutes to complete all the downloads.  If this script errors for some reason, mentioning a blocked port, simply delete the data, wait a bit, and restart the script.
