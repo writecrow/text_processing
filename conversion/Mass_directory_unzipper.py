@@ -13,7 +13,7 @@ regular subfolders of the same file name.
 import os
 import zipfile
 
-
+    
     
 def get_directory_list():
     '''
@@ -37,6 +37,20 @@ def get_directory_list():
         
     return new_directory_list
     
+def clean_nonzip_files(file_list):
+    '''
+    Goes through a list of file names and removes one that are not zip files from the list.
+    IE: Any file without the .zip extension will be tossed from the list.
+    
+    Parameters:
+    file_list is a list of files (or directories)
+    
+    returns: None, modifies the file_list in place.
+    '''
+    for item in file_list:
+        if '.zip' not in item:
+            print(item, ': non-zipfile found in directory, skipping...\n')
+            file_list.remove(item)
     
 def unzip_files(file_list):
     '''
@@ -48,9 +62,32 @@ def unzip_files(file_list):
     '''
     for zip in file_list:
         zip_file_name = zip.split('.')[0]
-        zip_ref = zipfile.ZipFile(zip, 'r')
+
+        #Checking if zipfile is valid.
+        if zipfile.is_zipfile(zip):
+            zip_ref = zipfile.ZipFile(zip, 'r')
+            zip_member_list = zip_ref.infolist()
+        
+            #archive_file is actually a zipinfo object that contains data about the files in the zipped directory
+            for archive_file in zip_member_list:
+                #print(archive_file.file_size)
+                if archive_file.file_size == 0 or archive_file.file_size == 1:
+                    print(': empty file in archive found, skipping file...')
+                    #Check for and skip empty files within the zipped file
+                    pass
+                else:
+                    extract_path = os.getcwd() + "/" + zip_file_name
+                    zip_ref.extract(archive_file, path=extract_path)
+        else:
+            print(zip, ': empty zipfile in directory found, skipping zipfile...')
+
+        
+        #zip_ref.close()
+            
+        '''
         zip_ref.extractall(os.getcwd() + "/" + zip_file_name)
         zip_ref.close()
+        '''
     
     
     
@@ -67,6 +104,7 @@ def sub_directory_looper_unzipper(directory_list):
         current_path = os.getcwd()
         os.chdir(current_path + "/" + folder)
         sub_directory_list = os.listdir()
+        clean_nonzip_files(sub_directory_list)
         unzip_files(sub_directory_list)
         
         # return to the directory above
