@@ -5,6 +5,10 @@ Included below is a description of tools used:
 
 #### conversion tools
 
+* convert_to_utf8.py is a command-line script for semi-intelligently converting files from known encoding 
+formats into the UTF-8 charset. It will convert entire directories or individual files, and can either
+overwrite the files or put them in a parallel `output` directory
+
 * cp1251_to_utf8.py is a python script which converts files encoded in Windows 1251 into UTF-8
 
 * Mass_directory_unzipper.py is a python script that loops through all folders in a current directory and looks inside them for zipfiles.  If zipfiles exist, this script will unzip them and place the contents into a regular folder of the same name as the zip file.
