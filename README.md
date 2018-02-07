@@ -25,6 +25,8 @@ overwrite the files or put them in a parallel `output` directory
 
 * textnormalization.py is a text cleaning script, it replaces punctuation such as smart quotes, ellipsis, dashes with a regular hyphen, and other non-english characters
 
+* FS_general_formatter.py is a text cleaning script, it is used to process data from FLLOC and SPLLOC files.  It replaces lines that begin @ and encases the lines in <> brackets.  It also encases the interviewer of the transcriptions in <> brackets. It should be ran with an argument specifying the kind of file and directory depth like such: **/**/*.cha or **/*.cex depending on your directory structure.  This script will read the files, and after modifying their text, write them to txt in a directory called "recoded" that mimics the initial file structure within the folder.  
+
 #### tagging
 
 #### text-retrieval
