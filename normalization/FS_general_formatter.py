@@ -7,7 +7,6 @@ Text Processor for FFLOC data.  Goes through a directory full of folders than co
 '''
 import io
 import os
-import re
 import sys
 import glob
 
@@ -30,6 +29,26 @@ def get_investigator_from_file(file_input):
 
 
 
+            
+            
+def get_participation_from_file(file_input):
+    '''
+    Gets the three Capital letter string of the investigator from a file
+    
+    Parameters:
+    file_input is the file to be opened and read.
+    
+    returns:
+    investigator_str: a string of the three capital letters of the investigator
+    '''
+
+    for line in f:
+        if (line[1:3] == 'ID' and "Participant" in line) or ("Subject" in line and line[1:3] == 'ID') or ("Undergraduate" in line and line[1:3] == 'ID'):
+            line_participation_list = line.split("|")
+            participation_str = line_participation_list[2]
+            return participation_str            
+            
+            
 
 
 def get_write_string(current_file):
@@ -47,6 +66,8 @@ def get_write_string(current_file):
     write_string: the full file contents, edited and processed in one string. Ready to write.
     '''
     current_investigator_str = get_investigator_from_file(current_file)
+    current_file.seek(0)
+    current_participation_str = get_participation_from_file(current_file)
     
     prev_line = ""
     write_string = ""
@@ -92,6 +113,17 @@ def get_write_string(current_file):
             new_line3 = "".join(line_list3)
             write_string += new_line3 
         
+        elif line[1:4] == current_participation_str:
+            '''
+            mark off interviewee with <> only around the 
+            ID only
+            '''
+            line_list4= list(line)
+            line_list4.insert(0, "<")
+            line_list4.insert(6, ">")
+            new_line4 = "".join(line_list4)
+            write_string += new_line4
+            
         
         else:
             write_string += line
@@ -132,7 +164,7 @@ if len(sys.argv) > 1:
 
 
                 
-            writing_file = open(file_path, "w")
+            writing_file = open(file_path, "w", encoding="utf8")
             writing_file.write(prepared_string)
             writing_file.close()
             
