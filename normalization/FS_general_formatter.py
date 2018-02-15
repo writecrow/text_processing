@@ -39,14 +39,17 @@ def get_participation_from_file(file_input):
     file_input is the file to be opened and read.
     
     returns:
-    investigator_str: a string of the three capital letters of the investigator
+    investigator_list: a string of the three capital letters of the investigator
     '''
-
+    participation_list = []
+    
     for line in f:
-        if (line[1:3] == 'ID' and "Participant" in line) or ("Subject" in line and line[1:3] == 'ID') or ("Undergraduate" in line and line[1:3] == 'ID'):
+        if (line[1:3] == 'ID' and "Participant" in line) or (line[1:3] == 'ID' and "Subject" in line) or (line[1:3] == 'ID' and "Undergraduate" in line) or (line[1:3] == 'ID' and "Student" in line):
             line_participation_list = line.split("|")
-            participation_str = line_participation_list[2]
-            return participation_str            
+            participation_list.append(line_participation_list[2])
+            #print(participation_list, line_participation_list[2])
+            
+    return participation_list            
             
             
 
@@ -65,9 +68,10 @@ def get_write_string(current_file):
     returns:
     write_string: the full file contents, edited and processed in one string. Ready to write.
     '''
+
     current_investigator_str = get_investigator_from_file(current_file)
     current_file.seek(0)
-    current_participation_str = get_participation_from_file(current_file)
+    current_participation_list = get_participation_from_file(current_file)
     
     prev_line = ""
     write_string = ""
@@ -100,6 +104,7 @@ def get_write_string(current_file):
             new_line2 = "".join(line_list2)
             write_string += new_line2
            #print(new_line2)
+           
         
         elif line[1:4] == current_investigator_str:
             '''
@@ -113,17 +118,27 @@ def get_write_string(current_file):
             new_line3 = "".join(line_list3)
             write_string += new_line3 
         
-        elif line[1:4] == current_participation_str:
+        elif line[1:4] in current_participation_list:
             '''
             mark off interviewee with <> only around the 
             ID only
             '''
-            line_list4= list(line)
+            line_list4 = list(line)
             line_list4.insert(0, "<")
             line_list4.insert(6, ">")
             new_line4 = "".join(line_list4)
             write_string += new_line4
             
+        elif line[0] == "%":
+            '''
+            Encapsulate lines that start with % in <>
+            '''
+            line_list5 = list(line)
+            line_list5.insert(0, "<")
+            index_to_insert5 = len(line_list5) - 1
+            line_list5.insert(index_to_insert5, ">")
+            new_line5 = "".join(line_list5)
+            write_string += new_line5
         
         else:
             write_string += line
