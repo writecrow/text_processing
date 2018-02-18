@@ -1,0 +1,2 @@
+Here is an example file with some html tags. <h1>Hello world!</h1> The demonstration 
+process.py file will remove the html tags while leaving everything else.
