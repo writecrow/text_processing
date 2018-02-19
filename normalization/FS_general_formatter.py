@@ -168,17 +168,11 @@ if len(sys.argv) > 1:
             for path_item in path:
                 if ".cha" not in path_item:
                     path_list.append(path_item)
-            #print("\\".join(path_list))
-            path = "recoded\\" + "\\".join(path_list)
-            #print(path)
 
-            
-            
-            if not os.path.exists(path):
-                os.makedirs(path)
-
-
-                
+            output_directory = os.path.dirname(file_path)
+            if not os.path.exists(output_directory):
+                os.makedirs(output_directory)
+      
             writing_file = open(file_path, "w", encoding="utf8")
             writing_file.write(prepared_string)
             writing_file.close()
