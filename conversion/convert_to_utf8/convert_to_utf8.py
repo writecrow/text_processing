@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 # DESCRIPTION: Given a file or files passed as arguments to the script,
 # attempt to guess the character encoding and open each file as such.
