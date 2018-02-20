@@ -7,17 +7,17 @@ This process function exists in process_script.py and may be modified
 as needed for processing.
 
 Example command for processing a single file called "text.txt"
-        $ python gpio.py --file=text.txt
+        $ python gpio.py --file=test-data/text.txt
 Example command for processing an entire directory called "input"
         $ python gpio.py --directory=input
 
-An optional argument, "--overwrite", may be passed along with the 
+An optional argument, "--overwrite", may be passed along with the
 file or directory, and will save any changes to the same location
 as the originating file. The default behavior, otherwise, is to
 save identically named file(s) to an "output" directory.
 
 The process() function receives the contents of each file as its
-input, and should return the (modified) contents of the file as 
+input, and should return the (modified) contents of the file as
 its output.
 '''
 
@@ -32,6 +32,7 @@ parser.add_argument('--directory', action="store", dest='dir', default='')
 parser.add_argument('--file', action="store", dest='file', default='')
 args = parser.parse_args()
 
+
 def process_file(filename, overwrite=False):
     ''' Open a file, send it to a process function, and write the output. '''
     output_filename = filename
@@ -42,7 +43,7 @@ def process_file(filename, overwrite=False):
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
 
-    infile = open(filename, 'rb').read()
+    infile = open(filename, 'r').read()
     # Here, the text is passed to the process() function.
     # @see process_script.py
     processed = process(infile)
