@@ -88,6 +88,7 @@ def get_write_string(current_file):
             multiline @situation problems in some files.
             '''
             line_list = list(line)
+            line_list[0] = "<"
             index_to_insert = len(line_list) - 1
             line_list.insert(index_to_insert, ">")
             new_line = "".join(line_list)
