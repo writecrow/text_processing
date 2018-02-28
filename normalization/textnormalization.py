@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
 import sys
@@ -14,29 +14,17 @@ if __name__ == '__main__':
         for file in sys.argv[1:]:
             with open(file, 'r') as f:
                 try:
-                    # get the file name
-                    print(f.name)
-                    file_name = re.sub(r'\.txt',r'',f.name)
-                    file_name = re.sub(r'\.TXT',r'',file_name)
+                    output_dir = 'cleaned'
+                    file_name = os.path.basename(f.name)
+                    original_directory = os.path.dirname(f.name)
+                    location, extension = os.path.splitext(f.name)
+                    output_filename = os.path.join(output_dir, location + '.txt')
+                    output_directory = os.path.dirname(output_filename)
+                    if not os.path.exists(output_directory):
+                        os.makedirs(output_directory)
 
-                    # get file path
-                    matches = re.findall('[\w\s]+\/', file_name)
-                    path = ''
-                    for m in matches:
-                        path = path + m
-
-                    path = "cleaned/" + path
-                    if not os.path.exists(path):
-                        os.makedirs(path)
-
-
-                    file_name = re.sub(r'[\w\s]+\/',r'',file_name)
-
-                    # output file name
-                    output_file_name = path + file_name + ".txt"
-                    #print(output_file_name)
                     # create a new file with that name, "w" is for writable
-                    output_file = open(output_file_name, "w")
+                    output_file = open(output_filename, "w")
 
                     # for each line in this file
                     for line in f:
