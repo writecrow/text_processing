@@ -1,0 +1,19 @@
+	Here is a paragraph of text. It started with a tab. When this file is cleaned, the
+tabs should initially be removed, then added.
+
+	This second paragraph contains some sample punctuation that should be normalized into standard quotes:
+replace left quote‘ with single, straight quote
+replace right quote’ with single, straight quote
+replace one dot leader ․ with full stop
+replace two dot leader ‥ with full stop
+replace three dot leader … with full stop
+remove inverted question mark ¿
+hyphen ‐
+non-breaking hyphen ‑
+figure dash ‒
+en dash –
+em dash —
+horizontal bar ―
+
+ This next paragraph demonstrates sentences with double spaces.  Like this.  Or this  one  here.
+	This paragraph includes some html <h1>Hello world!</h1>
