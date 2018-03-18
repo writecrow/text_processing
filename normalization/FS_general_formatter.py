@@ -12,47 +12,50 @@ import glob
 
 def get_investigator_from_file(file_input):
     '''
-    Gets the three Capital letter string of the investigator from a file
+    Gets the three/four Capital letter string(s) of the investigator from a file
     
     Parameters:
     file_input is the file to be opened and read.
     
     returns:
-    investigator_str: a string of the three capital letters of the investigator
+    investigator_str_list: a list of the three/four capital letters of the investigators
     '''
+    investigator_str_list = []
 
     for line in f:
-        if line[1:3] == 'ID' and "Investigator" in line:
+        if line[1:3] == 'ID' and any(x in line for x in ('Investigator', 'ShowHost', 'Teacher')):
             line_investigator_list = line.split("|")
-            investigator_str = line_investigator_list[2]
-            return investigator_str
-
-
-
+            investigator_str_list.append(line_investigator_list[2])
+        
+    #Believe it or not, some files don't have any investigators.  Fill in with default string to ignore.
+    #Not filling this in, breaks some of the checks.
+    if len(investigator_str_list) == 0:
+        investigator_str_list.append('NOINV')        
             
+    return investigator_str_list
+    
             
 def get_participation_from_file(file_input):
     '''
-    Gets the three Capital letter string of the investigator from a file
+    Gets the three/four capital letter strings of participants from a file into alist.
     
     Parameters:
     file_input is the file to be opened and read.
     
     returns:
-    investigator_list: a string of the three capital letters of the investigator
+    participation_list: a list of the three/four capital letter strings of participants
     '''
     participation_list = []
     
     for line in f:
-        if (line[1:3] == 'ID' and "Participant" in line) or (line[1:3] == 'ID' and "Subject" in line) or (line[1:3] == 'ID' and "Undergraduate" in line) or (line[1:3] == 'ID' and "Student" in line):
+        if (line[1:3] == 'ID' and any(x in line for x in ('Participant', 'Subject', 'Undergraduate', 'Student', 'Child', 'Partner'))):
             line_participation_list = line.split("|")
+            #print(line_participation_list[2])
             participation_list.append(line_participation_list[2])
             #print(participation_list, line_participation_list[2])
             
     return participation_list            
             
-            
-
 
 def get_write_string(current_file):
     '''
@@ -60,7 +63,7 @@ def get_write_string(current_file):
     It then processes them and edits them and produces new lines which are
     written to a string and then this function returns that writable string.
     
-    It initalizes an empty string, write_string that adds the new and edited lines
+    It initializes an empty string, write_string that adds the new and edited lines
     to itself to be returned.
     
     prev_line is a pointer that obviously points to the previous line in the file.
@@ -68,78 +71,74 @@ def get_write_string(current_file):
     returns:
     write_string: the full file contents, edited and processed in one string. Ready to write.
     '''
-
-    current_investigator_str = get_investigator_from_file(current_file)
-    current_file.seek(0)
-    current_participation_list = get_participation_from_file(current_file)
-    
     prev_line = ""
     write_string = ""
     
-    current_file.seek(0)
+    current_investigator_list = get_investigator_from_file(current_file)
+    current_file.seek(0) #reset looking in the file because we traversed it a little to get the list
+    
+    current_participation_list = get_participation_from_file(current_file)
+    current_file.seek(0) #reset looking in the file because we traversed it a little to get the list
+    
+    print('Processing: ', current_file.name)
+    #print('Investigator list: ', current_investigator_list)
+    #print('participant list: ', current_participation_list)
     
     for line in current_file:
 
-        if line[0] == "\t" and prev_line[0:10] == "@Situation":
+        line_list = list(line)
+        
+        if line[0] == '@':
             '''
-            This if statement exists because for some reason, there would be a line for 
-            @situation which would continue on the next line, beginning with a tab, which
-            would taint the data if left un-carroted off.  This basically takes care of 
-            multiline @situation problems in some files.
+            replace all @ with < and end the line with a >
             '''
-            line_list = list(line)
             line_list[0] = "<"
             index_to_insert = len(line_list) - 1
             line_list.insert(index_to_insert, ">")
             new_line = "".join(line_list)
             write_string += new_line
-
-        elif line[0] == '@':
-            '''
-            replace all @ with < and end the line with a >
-            '''
-            line_list2 = list(line)
-            line_list2[0] = "<"
-            index_to_insert2 = len(line_list2) - 1
-            line_list2.insert(index_to_insert2, ">")
-            new_line2 = "".join(line_list2)
-            write_string += new_line2
-           #print(new_line2)
-           
-        
-        elif line[1:4] == current_investigator_str:
-            '''
-            mark off the interviewer with < > as well so we only
-            really look at the speakers words 
-            '''
-            line_list3 = list(line)
-            line_list3.insert(0, "<")
-            index_to_insert3 = len(line_list3) - 1
-            line_list3.insert(index_to_insert3, ">")
-            new_line3 = "".join(line_list3)
-            write_string += new_line3 
-        
-        elif line[1:4] in current_participation_list:
-            '''
-            mark off interviewee with <> only around the 
-            ID only
-            '''
-            line_list4 = list(line)
-            line_list4.insert(0, "<")
-            line_list4.insert(6, ">")
-            new_line4 = "".join(line_list4)
-            write_string += new_line4
             
         elif line[0] == "%":
             '''
             Encapsulate lines that start with % in <>
             '''
-            line_list5 = list(line)
-            line_list5.insert(0, "<")
-            index_to_insert5 = len(line_list5) - 1
-            line_list5.insert(index_to_insert5, ">")
-            new_line5 = "".join(line_list5)
-            write_string += new_line5
+            line_list.insert(0, "<")
+            index_to_insert = len(line_list) - 1
+            line_list.insert(index_to_insert, ">")
+            new_line = "".join(line_list)
+            write_string += new_line
+
+        elif line[1:(len(current_investigator_list[0])+1)] in current_investigator_list and line[0] == '*':
+            '''
+            mark off the interviewer with < > as well so we only
+            really look at the speakers words 
+            '''
+            line_list.insert(0, "<")
+            index_to_insert = len(line_list) - 1
+            line_list.insert(index_to_insert, ">")
+            new_line = "".join(line_list)
+            write_string += new_line 
+        
+        elif line[1:(len(current_participation_list[0])+1)] in current_participation_list and line[0] == '*':
+            '''
+            mark off interviewee with <> only around the 
+            ID only
+            '''
+            line_list.insert(0, "<")
+            line_list.insert(6, ">")
+            new_line = "".join(line_list)
+            write_string += new_line
+        
+        elif line[0] == "\t" and new_line[(len(new_line)-2)] == ">":
+            '''
+            If the previous newly formatted line ends in >, it means the next tabbed lines
+            are apart of that, so they also need to be marked off with <>
+            '''
+            line_list.insert(0, "<")
+            index_to_insert = len(line_list) - 1
+            line_list.insert(index_to_insert, ">")
+            new_line = "".join(line_list)
+            write_string += new_line
         
         else:
             write_string += line
@@ -177,5 +176,4 @@ if len(sys.argv) > 1:
             writing_file = open(file_path, "w", encoding="utf8")
             writing_file.write(prepared_string)
             writing_file.close()
-            
-            
+ 
