@@ -5,6 +5,9 @@ import sys
 import re
 import os
 import codecs
+import string
+
+printable = set(string.printable)
 
 # command line to run this (from command prompt)
 # python textnormalization.py **/**/*.txt
@@ -80,6 +83,11 @@ if __name__ == '__main__':
                         line = re.sub(r'вЂќ','"',line)
                         line = re.sub(r'вЂ™',"'",line)
 
+                        # Retain only printable characters
+                        cleaned = list(filter(lambda x: x in string.printable, line))
+                        if cleaned:
+                            line = "".join(cleaned)
+
                         # use a regular expression to find non-english characters and replace them with space
                         line = re.sub(r'[^\x00-\x7F]+',' ', line)
 
@@ -97,9 +105,11 @@ if __name__ == '__main__':
                         # readd tab
                         line = re.sub(r'<tab>','\t', line)
 
+                        # Remove NUL character
+                        line = line.replace('\x00', '')
+
                         # write our text in the file
                         output_file.write(line + "\r\n")
-
 
                     # be polite and close the file
                     output_file.close()
