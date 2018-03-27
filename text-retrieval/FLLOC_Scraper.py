@@ -243,29 +243,4 @@ if __name__ == "__main__":
     remove_tasklist(total_link_list)
     #print(total_link_list)
     loop_and_populate(total_link_list)
-    print('Done with Download')
-    
-    
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+    print('Done with Download')  
