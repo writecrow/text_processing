@@ -43,7 +43,7 @@ def process_file(filename, overwrite=False):
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
 
-    infile = open(filename, 'r').read()
+    infile = open(filename, 'r', encoding="utf-8").read()
     # Here, the text is passed to the process() function.
     # @see process_script.py
     processed = process(infile)
