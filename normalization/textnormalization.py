@@ -15,7 +15,7 @@ printable = set(string.printable)
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         for file in sys.argv[1:]:
-            with open(file, 'r') as f:
+            with codecs.open (file, 'r', encoding = 'utf8') as f:
                 try:
                     output_dir = 'cleaned'
                     file_name = os.path.basename(f.name)
