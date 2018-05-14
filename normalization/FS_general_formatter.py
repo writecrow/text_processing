@@ -87,8 +87,45 @@ def get_write_string(current_file):
     for line in current_file:
 
         line_list = list(line)
+        #print(line_list)
         
-        if line[0] == '@':
+        if line[0] == "\t" and prev_line[0:10] == "@Situation":
+            '''
+            This if statement exists because for some reason, there would be a line for 
+            @situation which would continue on the next line, beginning with a tab, which
+            would taint the data if left un-carroted off.  This basically takes care of 
+            multiline @situation problems in some files.
+            '''
+            line_list[0] = "<"
+            index_to_insert = len(line_list) - 1
+            line_list.insert(index_to_insert, ">")
+            new_line = "".join(line_list)
+            write_string += new_line
+            
+        
+        elif line[0] == "\t" and new_line[(len(new_line)-2)] == ">":
+            '''
+            if the previous lines start with a tab (meaning its continued),
+            end it in the next line in a >
+            '''
+            line_list.insert(0, "<")
+            index_to_insert = len(line_list) - 1
+            line_list.insert(index_to_insert, ">")
+            new_line = "".join(line_list)
+            write_string += new_line
+        
+        #prev_line[1:len(current_investigator_list[0])] only works if all investigator strs are the same len  
+        elif line[0] == "\t" and prev_line[1:(len(current_investigator_list[0])+1)] in current_investigator_list:
+            '''
+            if line ends in tab, and the previous line had the investigator talking, mark it off
+            '''
+            line_list.insert(0, "<")
+            index_to_insert = len(line_list) - 1
+            line_list.insert(index_to_insert, ">")
+            new_line = "".join(line_list)
+            write_string += new_line
+        
+        elif line[0] == '@':
             '''
             replace all @ with < and end the line with a >
             '''
@@ -97,17 +134,8 @@ def get_write_string(current_file):
             line_list.insert(index_to_insert, ">")
             new_line = "".join(line_list)
             write_string += new_line
-            
-        elif line[0] == "%":
-            '''
-            Encapsulate lines that start with % in <>
-            '''
-            line_list.insert(0, "<")
-            index_to_insert = len(line_list) - 1
-            line_list.insert(index_to_insert, ">")
-            new_line = "".join(line_list)
-            write_string += new_line
-
+           #print(new_line2)
+           
         elif line[1:(len(current_investigator_list[0])+1)] in current_investigator_list and line[0] == '*':
             '''
             mark off the interviewer with < > as well so we only
@@ -128,11 +156,10 @@ def get_write_string(current_file):
             line_list.insert(6, ">")
             new_line = "".join(line_list)
             write_string += new_line
-        
-        elif line[0] == "\t" and new_line[(len(new_line)-2)] == ">":
+            
+        elif line[0] == "%":
             '''
-            If the previous newly formatted line ends in >, it means the next tabbed lines
-            are apart of that, so they also need to be marked off with <>
+            Encapsulate lines that start with % in <>
             '''
             line_list.insert(0, "<")
             index_to_insert = len(line_list) - 1
@@ -145,7 +172,10 @@ def get_write_string(current_file):
             
         prev_line = line
             
-    #print(write_string)                  
+    #print(write_string)  
+    write_string = write_string.replace('[', '<')
+    write_string = write_string.replace(']', '>')
+    
     return write_string
     
     
@@ -176,4 +206,5 @@ if len(sys.argv) > 1:
             writing_file = open(file_path, "w", encoding="utf8")
             writing_file.write(prepared_string)
             writing_file.close()
- 
+            
+            
