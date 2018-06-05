@@ -6,8 +6,16 @@ import re #imports the library for regular expressions
 import glob #imports the library for seeing all files
 import os #imports the library for opening and writing files
 
-# to run this:
-# python rep.py 101/**/**/**.**
+# Given a file located in a specific folder path, 
+# rename the file using the instructor ID and other elements
+# The command syntax is as follows:
+# python convert_filename.py <course-number>/<firstname lastname>/<assignment>/<file-name>.<extension>
+# Example (with actual test file)
+# python convert_filename.py 101/Mark\ Fullmer/Narrative/original file.pdf
+# will rename the file to:
+
+# The CSV file for getting instructor ID is defined, relative to this file, here:
+csv_filename = "instructors.csv"
 
 # function that gets a list with all names in the csv file
 # and returns a list with unique names (it eliminated repeated names)
@@ -21,7 +29,6 @@ def get_unique_names(list):
 if __name__ == '__main__': #iniitalizes the main block of code
     if len(sys.argv) > 1: #1st element is script name and other elements follow
         # open csv file first, to creat hash table/dictionary
-        csv_filename = "rep.csv" 
         csv_file = open(csv_filename,'r') #opens the file as read only (w is write)
         csvhash = {}
         for line in csv_file: #for every line in the file; can be used for lists as well; can also use counter if you want
@@ -40,14 +47,9 @@ if __name__ == '__main__': #iniitalizes the main block of code
 
         counter=900
         for arg in sys.argv[1:]: #for every argument in the list of arguments
-            
-           
-            # for every file entered as argument in the command line
-            
-            for file in glob.iglob(arg):
-            
-    
-               
+                  
+            # for every file entered as argument in the command line            
+            for file in glob.iglob(arg):               
                 with open(file, 'r') as f: #opens file and names it 'f'
                     #i=1
                     #for i in range(len(sys.argv)):
