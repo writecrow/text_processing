@@ -7,6 +7,7 @@
 #
 # Usage example:
 #    python3 convert_to_utf8.py --file=myfile.txt
+#    python text_processing/normalization/convert_to_utf8_normalize.py --directory=Converted/
 #
 # A new file, at output/myfile.txt will be created, with a best attempt at
 # utf8 encoding.
