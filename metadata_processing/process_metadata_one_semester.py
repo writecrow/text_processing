@@ -28,6 +28,7 @@ parser.add_argument('--file', action="store", dest='file', default='')
 args = parser.parse_args()
 
 def combine_tabs(filename):
+    print("Opening file " + filename)
     data = pandas.ExcelFile(filename)
     tabs = data.sheet_names
     mastertab = pandas.read_excel(data, 0)
