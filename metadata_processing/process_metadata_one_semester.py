@@ -125,6 +125,6 @@ elif args.file and os.path.isfile(args.file):
     output_frames = combine_tabs(args.file)
     new_combined_data = pandas.concat(output_frames)
     if len(output_frames) > 0:
-        new_combined_data.to_csv('test.csv')
+        new_combined_data.to_csv(output_filename)
 else:
     print('You need to supply a valid directory or filename')
