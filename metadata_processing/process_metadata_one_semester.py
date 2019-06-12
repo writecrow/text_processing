@@ -48,16 +48,13 @@ def combine_tabs(filename):
             #print(this_tab)
             #print(this_tab.columns)
             # comment: add student ids to list of studdent ids
-<<<<<<< HEAD
+
             for element in this_tab["Registrar ID"].tolist():
-=======
-            for element in this_tab["ID"].tolist():
->>>>>>> 166dda05e45edc4649efe0c46e3495aaf7e7ded5
                 studentid.append(element)
             #print("instructor tab: ", len(studentid))
 
             # comment: get the same students from the master tab
-<<<<<<< HEAD
+
             filterid = mastertab.loc[mastertab["Registrar ID"].isin(studentid)]
             #print(filterid["Registrar ID"])
             #print (len(studentid[,]))
@@ -65,15 +62,7 @@ def combine_tabs(filename):
 
             # comment: make sure tab and master are the same
             if len(studentid) == len(filterid["Registrar ID"].tolist()):
-=======
-            filterid = mastertab.loc[mastertab["ID"].isin(studentid)]
-            #print(filterid["ID"])
-            #print (len(studentid[,]))
-            #print ("mastertab: ", len (filterid["ID"].tolist()))
 
-            # comment: make sure tab and master are the same
-            if len(studentid) == len(filterid["ID"].tolist()):
->>>>>>> 166dda05e45edc4649efe0c46e3495aaf7e7ded5
                 #print("they are the same")
                 # comment: add this tab to frames list to combine data
                 frames.append(this_tab)
@@ -86,21 +75,15 @@ def combine_tabs(filename):
             #print(combined_data)
 
             # comment: get list of student IDs
-<<<<<<< HEAD
             allstudents = combined_data["Registrar ID"].unique()
-=======
-            allstudents = combined_data["ID"].unique()
->>>>>>> 166dda05e45edc4649efe0c46e3495aaf7e7ded5
             print("There are " + str(len(allstudents)) + " students to process.")
             new_frames = []
             # comment: for every student id
             for student in allstudents:
                 print("Checking student rows.")
-<<<<<<< HEAD
-                this_student_data = combined_data.loc[combined_data["Registrar ID"] == student]
-=======
+
                 this_student_data = combined_data.loc[combined_data["ID"] == student]
->>>>>>> 166dda05e45edc4649efe0c46e3495aaf7e7ded5
+
                 #print(this_student_data)
                 #print("*****")
                 #print(len(this_student_data))
