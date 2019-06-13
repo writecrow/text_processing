@@ -7,8 +7,7 @@
 # the original excel file.
 #
 # Usage example:
-#    python process_metadata_one_semester.py --file=myfile.xlsx
-#    python process_metadata_one_semester.py --directory=Spring2018
+#    python process_metadata_one_semester.py --directory=../../../Metadata/Spring\ 2018/ --master_student_file=../../../Metadata/Master_Student_metadata.xlsx --instructor_codes_file=../../../Metadata/Instructor_Codes.xlsx
 #
 # A new csv file with a similar name to the original spreadsheet
 # will be created.
@@ -20,11 +19,14 @@ import re
 import os
 import codecs
 import pandas
+import numpy
 
 # Define the way we retrieve arguments sent to the script.
 parser = argparse.ArgumentParser(description='Excel to CSV')
 parser.add_argument('--directory', action="store", dest='dir', default='')
 parser.add_argument('--file', action="store", dest='file', default='')
+parser.add_argument('--master_student_file', action="store", dest='master_student', default='')
+parser.add_argument('--instructor_codes_file', action="store", dest='instructor_codes', default='')
 args = parser.parse_args()
 
 def combine_tabs(filename):
@@ -44,7 +46,7 @@ def combine_tabs(filename):
             this_tab = pandas.read_excel(data, tab)
             #print(this_tab)
             # comment: add the tab name as a new column in the data
-            this_tab["source"] = tab
+            this_tab["Instructor Last Name"] = tab
             #print(this_tab)
             #print(this_tab.columns)
             # comment: add student ids to list of studdent ids
@@ -71,7 +73,7 @@ def combine_tabs(filename):
 
         # comment: combine all data
         if len(frames) != 0:
-            combined_data = pandas.concat(frames)
+            combined_data = pandas.concat(frames, sort=False)
             #print(combined_data)
 
             # comment: get list of student IDs
@@ -82,7 +84,7 @@ def combine_tabs(filename):
             for student in allstudents:
                 print("Checking student rows.")
 
-                this_student_data = combined_data.loc[combined_data["ID"] == student]
+                this_student_data = combined_data.loc[combined_data["Registrar ID"] == student]
 
                 #print(this_student_data)
                 #print("*****")
@@ -96,13 +98,9 @@ def combine_tabs(filename):
                         #print(row)
                         #print(row["Major"])
                     new_row = this_student_data.iloc[[0]]
-                    new_row["Major"] = major[:-2].replace(",", " ")
-                    new_row["College"] = college[:-2].replace(",", " ")
 
                 else:
                     new_row = this_student_data.iloc[[0]]
-                    new_row["Major"] = new_row["Major"].replace(",", " ")
-                    new_row["College"] = new_row["College"].replace(",", " ")
                 #print (new_row)
                 new_frames.append(new_row)
 
@@ -117,19 +115,59 @@ def combine_recursive(directory):
                 all_frames += combine_tabs(os.path.join(dirpath, name))
     return(all_frames)
 
-if args.dir and os.path.isdir(args.dir):
-    output_filename = re.sub(r'.+\/|.+\\|\.xlsx?', r'', args.dir)
-    output_filename += '_processed.csv'
-    output_frames = combine_recursive(args.dir)
-    new_combined_data = pandas.concat(output_frames)
+def process_new_data(output_frames, last_student_code, master_student_data, instructor_codes):
+    new_combined_data = pandas.concat(output_frames, sort=False)
+
     if len(output_frames) > 0:
-        new_combined_data.to_csv(output_filename)
-elif args.file and os.path.isfile(args.file):
-    output_filename = re.sub(r'.+\/|.+\\|\.xlsx?', r'', args.file)
-    output_filename += '_processed.csv'
-    output_frames = combine_tabs(args.file)
-    new_combined_data = pandas.concat(output_frames)
-    if len(output_frames) > 0:
-        new_combined_data.to_csv(output_filename)
+        # very important step, so student ID works
+        new_combined_data = new_combined_data.reset_index(drop = True)
+        # get first student ID we should use
+        start = last_student_code+1
+        # add Crow IDs to new dataframe
+        new_combined_data['New Crow ID'] = new_combined_data.index + start
+
+
+        new_combined_data2 = pandas.merge(new_combined_data, instructor_codes,
+        on='Instructor Last Name', how='left')
+        new_combined_data3 = pandas.merge(new_combined_data2, master_student_data,
+        on='Registrar ID', how='left')
+        new_combined_data3[['Crow ID']] = new_combined_data3[['Crow ID']].fillna(0)
+        new_combined_data3[['Crow ID']] = new_combined_data3[['Crow ID']].astype(int)
+
+        df = new_combined_data3
+        df['Crow_ID'] = numpy.where(df['Crow ID']==0,  df['New Crow ID'], df['Crow ID'])
+
+        # Delete the extra crow ID columns from the dataframe
+        df = df.drop("New Crow ID", axis=1)
+        df = df.drop("Crow ID", axis=1)
+        df = df.rename(index=str, columns={'Crow_ID': 'Crow ID'})
+
+        df.to_csv(output_filename)
+
+
+if args.master_student and args.instructor_codes:
+    master_student_file = pandas.ExcelFile(args.master_student)
+    master_student_data = pandas.read_excel(master_student_file)
+
+    # get last (highest) student code from master student file
+    last_student_code = master_student_data['Crow ID'].max()
+
+    instructor_codes_file = pandas.ExcelFile(args.instructor_codes)
+    instructor_codes = pandas.read_excel(instructor_codes_file, 'UA')
+
+    if args.dir and os.path.isdir(args.dir):
+        output_filename = re.sub(r'\.+\/|\.+\\', r'', args.dir)
+        output_filename = re.sub(r'\/|\\', r'_', output_filename)
+        output_filename += '_processed.csv'
+        output_frames = combine_recursive(args.dir)
+        process_new_data(output_frames, last_student_code, master_student_data[['Registrar ID', 'Crow ID']], instructor_codes)
+
+    elif args.file and os.path.isfile(args.file):
+        output_filename = re.sub(r'.+\/|.+\\|\.xlsx?', r'', args.file)
+        output_filename += '_processed.csv'
+        output_frames = combine_tabs(args.file)
+        process_new_data(output_frames, last_student_code, master_student_data[['Registrar ID', 'Crow ID']], instructor_codes)
+    else:
+        print('You need to supply a valid directory or filename')
 else:
-    print('You need to supply a valid directory or filename')
+    print('You need to supply a valid master student and instructor codes files')
