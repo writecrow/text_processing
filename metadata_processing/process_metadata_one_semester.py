@@ -7,8 +7,7 @@
 # the original excel file.
 #
 # Usage example:
-#    python process_metadata_one_semester.py --directory=../../../Metadata/Spring\ 2018/ --master_student_file=../../../Metadata/Master_Student_metadata.xlsx --instructor_codes_file=../../../Metadata/Instructor_Codes.xlsx
-#
+#    python process_metadata_one_semester.py --directory=../../../Metadata/Fall\ 2018/ --master_student_file=../../../Metadata/Master_Student_metadata_legacy.xlsx --instructor_codes_file=../../../Metadata/Instructor_Codes.xlsx
 # A new csv file with a similar name to the original spreadsheet
 # will be created.
 
@@ -115,17 +114,18 @@ def combine_recursive(directory):
                 all_frames += combine_tabs(os.path.join(dirpath, name))
     return(all_frames)
 
-def process_new_data(output_frames, last_student_code, master_student_data, instructor_codes):
+def process_new_data(output_frames, master_student_data, all_master, instructor_codes, output_filename):
     new_combined_data = pandas.concat(output_frames, sort=False)
 
     if len(output_frames) > 0:
+        # get last (highest) student code from master student file
+        last_student_code = master_student_data['Crow ID'].max()
         # very important step, so student ID works
         new_combined_data = new_combined_data.reset_index(drop = True)
         # get first student ID we should use
         start = last_student_code+1
         # add Crow IDs to new dataframe
         new_combined_data['New Crow ID'] = new_combined_data.index + start
-
 
         new_combined_data2 = pandas.merge(new_combined_data, instructor_codes,
         on='Instructor Last Name', how='left')
@@ -142,15 +142,26 @@ def process_new_data(output_frames, last_student_code, master_student_data, inst
         df = df.drop("Crow ID", axis=1)
         df = df.rename(index=str, columns={'Crow_ID': 'Crow ID'})
 
-        df.to_csv(output_filename)
+        df = df.drop_duplicates()
+        df.to_csv(output_filename, index = False)
+
+        df['Acad Level'] = numpy.nan
+        master_slice = df[['Catalog Nbr', 'Class Section', 'Registrar ID', 'First Name', 'Last Name', 'Acad Level', 'College', 'Major', 'Birth Country Code', 'Gender', 'TOEFL COMPI', 'TOEFL Listening', 'TOEFL Reading', 'TOEFL Writing', 'TOEFL Speaking', 'Crow ID', 'Instructor Code', 'Alternate Name', 'term', 'mode_of_course', 'length_of_course', 'institution']]
+
+        new_master = pandas.concat([all_master, master_slice], sort = False)
+        output_filename = re.sub(r'\s+', r'_', output_filename)
+        new_master.to_csv('master_' + output_filename, index = False)
 
 
 if args.master_student and args.instructor_codes:
-    master_student_file = pandas.ExcelFile(args.master_student)
-    master_student_data = pandas.read_excel(master_student_file)
+    if '.xls' in args.master_student:
+        master_student_file = pandas.ExcelFile(args.master_student)
+        master_student_data = pandas.read_excel(master_student_file)
+    elif '.csv' in args.master_student:
+        master_student_data = pandas.read_csv(args.master_student)
 
-    # get last (highest) student code from master student file
-    last_student_code = master_student_data['Crow ID'].max()
+    # get last (highest) section code from master student file
+    last_section_code = master_student_data['Class Section'].max()
 
     instructor_codes_file = pandas.ExcelFile(args.instructor_codes)
     instructor_codes = pandas.read_excel(instructor_codes_file, 'UA')
@@ -159,14 +170,16 @@ if args.master_student and args.instructor_codes:
         output_filename = re.sub(r'\.+\/|\.+\\', r'', args.dir)
         output_filename = re.sub(r'\/|\\', r'_', output_filename)
         output_filename += '_processed.csv'
+        output_filename = re.sub(r'_+', r'_', output_filename)
         output_frames = combine_recursive(args.dir)
-        process_new_data(output_frames, last_student_code, master_student_data[['Registrar ID', 'Crow ID']], instructor_codes)
+        process_new_data(output_frames, master_student_data[['Registrar ID', 'Crow ID']], master_student_data, instructor_codes, output_filename)
 
     elif args.file and os.path.isfile(args.file):
         output_filename = re.sub(r'.+\/|.+\\|\.xlsx?', r'', args.file)
         output_filename += '_processed.csv'
+        output_filename = re.sub(r'_+', r'_', output_filename)
         output_frames = combine_tabs(args.file)
-        process_new_data(output_frames, last_student_code, master_student_data[['Registrar ID', 'Crow ID']], instructor_codes)
+        process_new_data(output_frames, last_student_code, master_student_data[['Registrar ID', 'Crow ID']], instructor_codes, last_section_code)
     else:
         print('You need to supply a valid directory or filename')
 else:
