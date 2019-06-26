@@ -87,7 +87,29 @@ def normalize_file(original_file):
                 line = re.sub(r'([\.\?;:])([0-9]+\s+)','\g<1> \g<2>', line)
                 #line = re.sub(r'\r',' ', line)
                 line = re.sub(r'([a-z])(\n[A-Z])','\g<1>. \g<2>', line)
-                # use a regular expression to find non-english characters and replace them with space
+                # flatten diacritics
+                line = re.sub(r'[áàãäâåāăąǎȃȧ]','a', line)
+                line = re.sub(r'[ÁÀÃÄÂÅĀĂĄǍȂȦ]','A', line)
+                line = re.sub(r'[éèêëēĕėęěȇ]','e', line)
+                line = re.sub(r'[ÉÈÊËĒĔĖĘĚȆ]','E', line)
+                line = re.sub(r'[íìîïīĭįǐȋ]','i', line)
+                line = re.sub(r'[ÍÌÎÏĪĬĮİǏȊ]','I', line)
+                line = re.sub(r'[øóòöõôȏȯ]','o', line)
+                line = re.sub(r'[ØÓÒÖÕÔȎȮ]','O', line)
+                line = re.sub(r'[úùüûǔȗ]','u', line)
+                line = re.sub(r'[ÚÙÜÛǓȖ]','U', line)
+                line = re.sub(r'[ÝȲ]','Y', line)
+                line = re.sub(r'[ýÿȳ]','y', line)
+                line = re.sub(r'œ','oe', line)
+                line = re.sub(r'æ','ae', line)
+                line = re.sub(r'Æ','AE', line)
+                line = re.sub(r'[çćĉċč]','c', line)
+                line = re.sub(r'[ÇĆĈĊČ]','C', line)
+                line = re.sub(r'ñ','n', line)
+                line = re.sub(r'Ñ','N', line)
+                # use a regular expression to find non-english characters and
+                # replace them with space
+                # capture any name that is written in different scripts
                 line = re.sub(r'[^\x00-\x7F]+', ' ', line)
                 # get rid of weird line breaks (this does not seem to be working)
                 line = re.sub(r'([a-z]+)\s*\n\s*([a-z]+)','\g<1> \g<2>', line)
@@ -95,13 +117,12 @@ def normalize_file(original_file):
                 line = re.sub(r'\s+', ' ', line)
                 #print(line)
                 # get rid space in the beginning of a line
-                if line[0] == ' ':
-                    line = line[1:]
-                # readd tab
+                line = line.strip()
+                # re-add tab
                 line = re.sub(r'<tab>', '\t', line)
                 # write our text in the file
-                if not re.match(r'^\s*$', line):
-                    output_file.write(line + "\r\n")
+                output_file.write(line + "\r\n")
+                #print(line, file=output_file)
             # be polite and close the file
             output_file.close()
         except:
@@ -139,31 +160,34 @@ def decode(filename, encoding_method):
 
 
 def convert_file(filename, overwrite=False):
-    output_filename = filename
-    if (not overwrite):
-        output_dir = 'converted'
-        output_filename = os.path.join(output_dir, filename)
-        output_directory = os.path.dirname(output_filename)
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
+    if '.txt' in filename:
+        output_filename = filename
+        if (not overwrite):
+            output_dir = 'converted'
+            output_filename = os.path.join(output_dir, filename)
+            output_directory = os.path.dirname(output_filename)
+            if not os.path.exists(output_directory):
+                os.makedirs(output_directory)
 
-    # Open the file so we can guess its encoding.
-    rawdata = open(filename, 'rb').read()
-    detected = chardet.detect(rawdata)
-    encoding_method = get_encoding(detected['encoding'])
-    if (encoding_method):
-        u = decode(filename, encoding_method)
-        out = codecs.open(output_filename, 'w', 'utf-8')
-        out.write(u['file'])
-        out.close()
-        print(filename, "converted from", u['encoding'])
-    else:
-        shutil.copy(filename, output_filename)
-        if (detected['encoding'] == 'utf-8'):
-            print(filename, "already encoded in utf-8")
+        # Open the file so we can guess its encoding.
+        rawdata = open(filename, 'rb').read()
+        detected = chardet.detect(rawdata)
+        encoding_method = get_encoding(detected['encoding'])
+        if (encoding_method):
+            u = decode(filename, encoding_method)
+            out = codecs.open(output_filename, 'w', 'utf-8')
+            out.write(u['file'])
+            out.close()
+            print(filename, "converted from", u['encoding'])
         else:
-            print(filename, "detected as", detected['encoding'], "(No change)")
-    normalize_file(output_filename)
+            shutil.copy(filename, output_filename)
+            if (detected['encoding'] == 'utf-8'):
+                print(filename, "already encoded in utf-8")
+            else:
+                print(filename, "detected as", detected['encoding'], "(No change)")
+        normalize_file(output_filename)
+    else:
+        print(filename, "is not a text file")
 
 
 def convert_recursive(directory, overwrite=False):
