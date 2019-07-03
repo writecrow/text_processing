@@ -60,43 +60,74 @@ def deidentify_file(filename, master, overwrite=False):
             # fill NaN with a space, for later checking of altername name
             filtered_metadata = filtered_metadata.fillna(' ')
 
+            # create an empty list of names
+            names2remove = []
+            # for every row in this class section
+            for index, row in filtered_metadata.iterrows():
+                # add different name combinations to list of names
+                # re.I flag is to ignore case
+                # re.DOTALL is to find all instances of regex
+                names2remove.append(re.compile('^\s?' + row['First Name'] + '\s?' + row['Last Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('^\s?' + row['Last Name'] + '\s?' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('^\s?' + row['Last Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('^\s?' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('\s' + row['First Name'] + '\s?' + row['Last Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('\s' + row['Last Name'] + '\s?' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('\s' + row['Last Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('\s' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                if row['Alternate Name'] != ' ':
+                    names2remove.append(re.compile('^\s?' + row['Alternate Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
+                    names2remove.append(re.compile('^\s?' + row['Alternate Name'] + '\s?' + row['Last Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                    names2remove.append(re.compile('^\s?' + row['Alternate Name'] + '\s?' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                    names2remove.append(re.compile('^\s?' + row['Last Name'] + '\s?' + row['Alternate Name'] + '\s?' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                    names2remove.append(re.compile('\s' + row['Alternate Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
+                    names2remove.append(re.compile('\s' + row['Alternate Name'] + '\s?' + row['Last Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                    names2remove.append(re.compile('\s' + row['Alternate Name'] + '\s?' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                    names2remove.append(re.compile('\s' + row['Last Name'] + '\s?' + row['Alternate Name'] + '\s?' + row['First Name'] + '(\b|(\r+)?\n|\s)', re.I | re.DOTALL))
+                names2remove.append(re.compile('(^\s?)' + row['Instructor First Name'] + '\s?' + row['Instructor Last Name'], re.I| re.DOTALL))
+                names2remove.append(re.compile('(^\s?)' + row['Instructor Last Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
+                names2remove.append(re.compile('(^\s?)' + row['Instructor First Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
+                names2remove.append(re.compile('\s' + row['Instructor First Name'] + '\s?' + row['Instructor Last Name'], re.I| re.DOTALL))
+                names2remove.append(re.compile('\s' + row['Instructor Last Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
+                names2remove.append(re.compile('\s' + row['Instructor First Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
 
             for line in textfile:
-                this_line = re.sub(r'\r?\n', r'', line)
-                if this_line != '':
-                    # the next few lines may remove titles
-                    # remove from line patterns for proper names
-                    cleaned_line = re.sub(r'(([A-Z][a-z]+\s)+)?[A-Z][a-z]+', r'', this_line)
-                    # remove any extra spaces
-                    cleaned_line = re.sub(r'\s', r'', cleaned_line)
-                    cleaned_line = cleaned_line.strip()
-                    # if removing proper names makes line empty, the line
-                    # had only proper names and nothing else
-                    #if cleaned_line != '':
-                    if True:
-                        # create an empty list of names
-                        names2remove = []
-                        # for every row in this class section
-                        for index, row in filtered_metadata.iterrows():
-                            # add different name combinations to list of names
-                            # re.I flag is to ignore case
-                            # re.DOTALL is to find all instances of regex 
-                            names2remove.append(re.compile(row['First Name'] + ' ' + row['Last Name'], re.I | re.DOTALL))
-                            names2remove.append(re.compile(row['Last Name'] + ' ' + row['First Name'], re.I | re.DOTALL))
-                            if row['Alternate Name'] != ' ':
-                                names2remove.append(re.compile(row['Alternate Name'], re.I| re.DOTALL))
-                                names2remove.append(re.compile(row['Alternate Name'] + ' ' + row['Last Name'], re.I | re.DOTALL))
-                                names2remove.append(re.compile(row['Alternate Name'] + ' ' + row['First Name'], re.I | re.DOTALL))
-                                names2remove.append(re.compile(row['Last Name'] + ' ' + row['Alternate Name'] + ' ' + row['First Name'], re.I | re.DOTALL))
-                            names2remove.append(re.compile(row['Instructor First Name'] + ' ' + row['Instructor Last Name'], re.I| re.DOTALL))
-                            names2remove.append(re.compile(row['Instructor Last Name'], re.I| re.DOTALL))
+                new_line = line
+                # for every name in the list of names
+                print(line)
+                for name in names2remove:
+                    new_line = re.sub(name, ' <name> ', new_line)
+                print(new_line)
 
-                        new_line = this_line
-                        # for every name in the list of names
-                        for name in names2remove:
-                            new_line = re.sub(name, '<name>', new_line)
-
-                        output_file.write(new_line + '\r\n')
+                # the next few lines may remove titles
+                # remove from line patterns for proper names
+                cleaned_line = re.sub(r'(\r+)?\n', r'', new_line)
+                cleaned_line = re.sub(r'<name>', r'', cleaned_line)
+                cleaned_line = re.sub(r'(([A-Z][a-z]+\s){1,3})?[A-Z][a-z]+', r'', cleaned_line)
+                # remove any extra spaces
+                cleaned_line = re.sub(r'\s', r'', cleaned_line)
+                cleaned_line = cleaned_line.strip()
+                # if removing numbers makes line empty, the line
+                # had only numbers and nothing else
+                cleaned_line2 = re.sub(r'(\r+)?\n', r'', new_line)
+                cleaned_line2 = re.sub(r'[0-9]+', r'', cleaned_line2)
+                # remove any extra spaces
+                cleaned_line2 = re.sub(r'\s', r'', cleaned_line2)
+                cleaned_line2 = cleaned_line2.strip()
+                # if removing email addresses makes line empty, the line
+                # had only email addresses and nothing else
+                cleaned_line3 = re.sub(r'([A-Z]|[a-z]|[0-9]|\.)+@.+', r'', new_line)
+                # remove any extra spaces
+                cleaned_line3 = re.sub(r'\s', r'', cleaned_line3)
+                cleaned_line3 = cleaned_line3.strip()
+                if (cleaned_line != '' and
+                    cleaned_line2 != '' and
+                    cleaned_line3 != ''):
+                    if not ('.' not in new_line and '<name>' in new_line):
+                        if not new_line[0] == '[':
+                            new_line2 = re.sub(r'\[([A-Z][A-Z]\s?[0-9]{1,2})\]', r'', new_line)
+                            new_line2 = re.sub(r'([A-Z]|[a-z]|[0-9]|\.)+@.+', r'<email>', new_line2)
+                            output_file.write(new_line2.strip() + '\r\n')
 
             output_file.close()
             textfile.close()
