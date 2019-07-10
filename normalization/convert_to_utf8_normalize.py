@@ -7,7 +7,7 @@
 #
 # Usage example:
 #    python3 convert_to_utf8.py --file=myfile.txt
-#    python text_processing/normalization/convert_to_utf8_normalize.py --directory=Converted/
+#    python convert_to_utf8_normalize.py --directory=../../../Spring\ 2018/Converted/
 #
 # A new file, at output/myfile.txt will be created, with a best attempt at
 # utf8 encoding.
@@ -163,8 +163,9 @@ def convert_file(filename, overwrite=False):
     if '.txt' in filename:
         output_filename = filename
         if (not overwrite):
-            output_dir = 'converted'
-            output_filename = os.path.join(output_dir, filename)
+            clean_filename = re.sub(r'\.\.[\\\/]', r'', filename)
+            output_dir = 'utf8encoded'
+            output_filename = os.path.join(output_dir, clean_filename)
             output_directory = os.path.dirname(output_filename)
             if not os.path.exists(output_directory):
                 os.makedirs(output_directory)
