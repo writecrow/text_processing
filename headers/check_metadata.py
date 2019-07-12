@@ -5,7 +5,9 @@
 # metadata headers are added to each individual text files
 #
 # Usage example:
-#    python check_metadata.py --directory=../../../Spring\ 2018/Normalized/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
+#    python check_metadata.py --directory=../../../Spring\ 2018/normalized --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
+#    python check_metadata.py --directory=../../../Fall\ 2017/normalized --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
+#    python check_metadata.py --directory=../../../Fall\ 2018/normalized --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx
 
 import argparse
 import sys
@@ -22,14 +24,11 @@ args = parser.parse_args()
 
 
 def add_header_to_file(filename, master, overwrite=False):
+    found_text_files = False
     if '.txt' in filename:
+        found_text_files = True
+        print(filename)
         output_filename = filename
-        if (not overwrite):
-            output_dir = 'files_with_headers'
-            output_filename = os.path.join(output_dir, filename)
-            output_directory = os.path.dirname(output_filename)
-            if not os.path.exists(output_directory):
-                os.makedirs(output_directory)
 
         # Open the file so we can guess its encoding.
         textfile = open(filename, 'r')
@@ -59,11 +58,17 @@ def add_header_to_file(filename, master, overwrite=False):
             print(student_name_parts)
 
         textfile.close()
+    return(found_text_files)
 
 def add_headers_recursive(directory, master, overwrite=False):
+    found_text_files = False
     for dirpath, dirnames, files in os.walk(directory):
         for name in files:
-            add_header_to_file(os.path.join(dirpath, name), master, overwrite)
+            is_this_a_text_file = add_header_to_file(os.path.join(dirpath, name), master, overwrite)
+            if is_this_a_text_file:
+                found_text_files = True
+    if not found_text_files:
+        print('No text files found in the directory.')
 
 
 if args.master_file and args.dir:

@@ -5,7 +5,10 @@
 # metadata headers are added to each individual text files
 #
 # Usage example:
-#    python add_headers.py --directory=../../../Spring\ 2018/Normalized/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
+#    python add_headers.py --directory=../../../Spring\ 2018/normalized/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
+#    python add_headers.py --directory=../../../Fall\ 2017/normalized/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
+#    python add_headers.py --directory=../../../Fall\ 2018/normalized/ --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx
+
 
 import argparse
 import sys
@@ -22,7 +25,9 @@ args = parser.parse_args()
 
 
 def add_header_to_file(filename, master, overwrite=False):
+    found_text_files = False
     if '.txt' in filename:
+        found_text_files = True
         filename_parts = filename.split('- ')
         student_name = re.sub(r'\.txt', r'', filename_parts[1])
         student_name = re.sub(r'\s+', r' ', student_name)
@@ -82,7 +87,9 @@ def add_header_to_file(filename, master, overwrite=False):
             output_filename = re.sub(r'__', r'_NA_', output_filename)
 
             if 'Series' not in output_filename:
-                path = "files_with_headers/ENGL" + course+ "/" + assignment + "/" + draft + "/"
+                term = filtered_master2['term'].to_string(index=False)
+                folder_term = term.strip()
+                path = "files_with_headers/" + term + "/ENGL" + course+ "/" + assignment + "/" + draft + "/"
 
                 if not os.path.exists(path):
                     os.makedirs(path)
@@ -91,7 +98,7 @@ def add_header_to_file(filename, master, overwrite=False):
 
                 country = filtered_master2['Descr'].to_string(index=False)
                 institution = filtered_master2['institution'].to_string(index=False)
-                term = filtered_master2['term'].to_string(index=False)
+
                 semester = term.split()[0]
                 year = term.split()[1]
                 college = filtered_master2['College'].to_string(index=False)
@@ -103,12 +110,23 @@ def add_header_to_file(filename, master, overwrite=False):
                 TOEFL_Speaking = filtered_master2['TOEFL Speaking'].to_string(index=False)
                 instructor = filtered_master2['Instructor Code'].to_string(index=False)
                 section = filtered_master2['Class Section'].to_string(index=False)
+                mode = filtered_master2['mode_of_course'].to_string(index=False)
+                length = filtered_master2['length_of_course'].to_string(index=False)
+
+                country = re.sub(r'NaN', r'NA', country)
+                TOEFL_COMPI = re.sub(r'NaN', r'NA', TOEFL_COMPI)
+                TOEFL_Listening = re.sub(r'NaN', r'NA', TOEFL_Listening)
+                TOEFL_Reading = re.sub(r'NaN', r'NA', TOEFL_Reading)
+                TOEFL_Writing = re.sub(r'NaN', r'NA', TOEFL_Writing)
+                TOEFL_Speaking = re.sub(r'NaN', r'NA', TOEFL_Speaking)
 
                 # write headers in
                 output_file.write("<ID: " + crow_id + ">" + "\r\n")
                 output_file.write("<Country: " + country + ">" + "\r\n")
                 output_file.write("<Institution: " + institution + ">" + "\r\n")
                 output_file.write("<Course: " + course + ">" + "\r\n")
+                output_file.write("<Mode: " + mode + ">" + "\r\n")
+                output_file.write("<Length: " + length + ">" + "\r\n")
                 output_file.write("<Assignment: " + assignment + ">" + "\r\n")
                 output_file.write("<Draft: " + draft + ">" + "\r\n")
                 output_file.write("<Year in School: " + year_in_school + ">" + "\r\n")
@@ -129,20 +147,24 @@ def add_header_to_file(filename, master, overwrite=False):
                 for line in textfile:
                     this_line = re.sub(r'\r?\n', r'\r\n', line)
                     if this_line != '\r\n':
-                        output_file.write(this_line)
+                        new_line = re.sub(r'\s+', r' ', this_line)
+                        new_line = new_line.strip()
+                        print(new_line, file = output_file, end = '\r\n')
 
                 output_file.close()
             textfile.close()
-
-
-
-
+    return(found_text_files)
 
 
 def add_headers_recursive(directory, master, overwrite=False):
+    found_text_files = False
     for dirpath, dirnames, files in os.walk(directory):
         for name in files:
-            add_header_to_file(os.path.join(dirpath, name), master, overwrite)
+            is_this_a_text_file = add_header_to_file(os.path.join(dirpath, name), master, overwrite)
+            if is_this_a_text_file:
+                found_text_files = True
+    if not found_text_files:
+        print('No text files found in the directory.')
 
 
 if args.master_file and args.dir:
