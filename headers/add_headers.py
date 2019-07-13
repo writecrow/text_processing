@@ -56,7 +56,8 @@ def add_header_to_file(filename, master, overwrite=False):
             print('Adding headers to file ' + textfile)
             textfile = open(filename, 'r')
             not_windows_filename = re.sub(r'\\', r'/', filename)
-            filename_parts2 = not_windows_filename.split('/')
+            clean_filename = re.sub(r'\.\.\/', r'', not_windows_filename)
+            filename_parts2 = clean_filename.split('/')
 
             course = filtered_master2['Catalog Nbr'].to_string(index=False)
             assignment = filename_parts2[7][:2]
