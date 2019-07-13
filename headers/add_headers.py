@@ -53,6 +53,7 @@ def add_header_to_file(filename, master, overwrite=False):
             print(filename)
             print(student_name_parts)
         else:
+            print('Adding headers to file ' + textfile)
             textfile = open(filename, 'r')
             filename_parts2 = filename.split('/')
 
