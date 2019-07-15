@@ -11,9 +11,6 @@
 # Windows run with Anaconda Prompt example:
 #    python add_headers.py --directory="../../../Fall 2018/normalized/" --master_file="../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx"
 
-
-
-
 import argparse
 import sys
 import re
@@ -140,8 +137,8 @@ def add_header_to_file(filename, master, overwrite=False):
                 print("<Draft: " + draft + ">", file = output_file)
                 print("<Year in School: " + year_in_school + ">", file = output_file)
                 print("<Gender: " + gender + ">", file = output_file)
-                print("<Year writing: " + year + ">", file = output_file)
-                print("<Semester writing: " + semester + ">" , file = output_file)
+                print("<Course Year: " + year + ">", file = output_file)
+                print("<Course Semester: " + semester + ">" , file = output_file)
                 print("<College: " + college + ">", file = output_file)
                 print("<Program: " + program + ">", file = output_file)
                 print("<TOEFL total: " + TOEFL_COMPI + ">", file = output_file)
