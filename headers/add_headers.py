@@ -4,10 +4,14 @@
 # DESCRIPTION: Given an excel file and text files passed as arguments to the script,
 # metadata headers are added to each individual text files
 #
-# Usage example:
+# Mac OS example:
 #    python add_headers.py --directory=../../../Spring\ 2018/normalized/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
 #    python add_headers.py --directory=../../../Fall\ 2017/normalized/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
 #    python add_headers.py --directory=../../../Fall\ 2018/normalized/ --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx
+# Windows run with Anaconda Prompt example:
+#    python add_headers.py --directory="../../../Fall 2018/normalized/" --master_file="../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx"
+
+
 
 
 import argparse
@@ -53,15 +57,17 @@ def add_header_to_file(filename, master, overwrite=False):
             print(filename)
             print(student_name_parts)
         else:
-            print('Adding headers to file ' + textfile)
+            print('Adding headers to file ' + filename)
             textfile = open(filename, 'r')
             not_windows_filename = re.sub(r'\\', r'/', filename)
             clean_filename = re.sub(r'\.\.\/', r'', not_windows_filename)
             filename_parts2 = clean_filename.split('/')
 
             course = filtered_master2['Catalog Nbr'].to_string(index=False)
-            assignment = filename_parts2[7][:2]
-            draft = filename_parts2[7][2:]
+            assignment = filename_parts2[4][:2]
+            draft = filename_parts2[4][2:]
+            print(clean_filename)
+            print(filename_parts2)
             country_code = filtered_master2['Birth Country Code'].to_string(index=False)
             year_in_school = 'NA'
             gender = filtered_master2['Gender'].to_string(index=False)
@@ -124,35 +130,36 @@ def add_header_to_file(filename, master, overwrite=False):
                 TOEFL_Speaking = re.sub(r'NaN', r'NA', TOEFL_Speaking)
 
                 # write headers in
-                output_file.write("<ID: " + crow_id + ">" + "\r\n")
-                output_file.write("<Country: " + country + ">" + "\r\n")
-                output_file.write("<Institution: " + institution + ">" + "\r\n")
-                output_file.write("<Course: " + course + ">" + "\r\n")
-                output_file.write("<Mode: " + mode + ">" + "\r\n")
-                output_file.write("<Length: " + length + ">" + "\r\n")
-                output_file.write("<Assignment: " + assignment + ">" + "\r\n")
-                output_file.write("<Draft: " + draft + ">" + "\r\n")
-                output_file.write("<Year in School: " + year_in_school + ">" + "\r\n")
-                output_file.write("<Gender: " + gender + ">" + "\r\n")
-                output_file.write("<Year writing: " + year + ">" + "\r\n")
-                output_file.write("<Semester writing: " + semester + ">" + "\r\n")
-                output_file.write("<College: " + college + ">" + "\r\n")
-                output_file.write("<Program: " + program + ">" + "\r\n")
-                output_file.write("<TOEFL total: " + TOEFL_COMPI + ">" + "\r\n")
-                output_file.write("<TOEFL reading: " + TOEFL_Reading + ">" + "\r\n")
-                output_file.write("<TOEFL listening: " + TOEFL_Listening + ">" + "\r\n")
-                output_file.write("<TOEFL speaking: " + TOEFL_Speaking + ">" + "\r\n")
-                output_file.write("<TOEFL writing: " + TOEFL_Writing + ">" + "\r\n")
-                output_file.write("<Instructor: " + instructor + ">" + "\r\n")
-                output_file.write("<Section: " + section + ">" + "\r\n")
-                output_file.write("<End Header>\r\n\r\n")
+                print("<ID: " + crow_id + ">", file = output_file)
+                print("<Country: " + country + ">", file = output_file)
+                print("<Institution: " + institution + ">", file = output_file)
+                print("<Course: " + course + ">", file = output_file)
+                print("<Mode: " + mode + ">", file = output_file)
+                print("<Length: " + length + ">", file = output_file)
+                print("<Assignment: " + assignment + ">", file = output_file)
+                print("<Draft: " + draft + ">", file = output_file)
+                print("<Year in School: " + year_in_school + ">", file = output_file)
+                print("<Gender: " + gender + ">", file = output_file)
+                print("<Year writing: " + year + ">", file = output_file)
+                print("<Semester writing: " + semester + ">" , file = output_file)
+                print("<College: " + college + ">", file = output_file)
+                print("<Program: " + program + ">", file = output_file)
+                print("<TOEFL total: " + TOEFL_COMPI + ">", file = output_file)
+                print("<TOEFL reading: " + TOEFL_Reading + ">", file = output_file)
+                print("<TOEFL listening: " + TOEFL_Listening + ">", file = output_file)
+                print("<TOEFL speaking: " + TOEFL_Speaking + ">", file = output_file)
+                print("<TOEFL writing: " + TOEFL_Writing + ">", file = output_file)
+                print("<Instructor: " + instructor + ">", file = output_file)
+                print("<Section: " + section + ">", file = output_file)
+                print("<End Header>", file = output_file)
+                print("", file = output_file)
 
                 for line in textfile:
                     this_line = re.sub(r'\r?\n', r'\r\n', line)
                     if this_line != '\r\n':
                         new_line = re.sub(r'\s+', r' ', this_line)
                         new_line = new_line.strip()
-                        print(new_line, file = output_file, end = '\r\n')
+                        print(new_line, file = output_file)
 
                 output_file.close()
             textfile.close()
