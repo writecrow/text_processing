@@ -5,8 +5,8 @@
 # metadata headers are added to each individual text files
 #
 # Usage example:
-#    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx
-
+#    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
+#    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Processed/ --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 
 
 import argparse
@@ -21,11 +21,14 @@ parser.add_argument('--overwrite', action='store_true')
 parser.add_argument('--directory', action="store", dest='dir', default='')
 parser.add_argument('--master_file', action="store", dest='master_file', default='')
 parser.add_argument('--master_instructor_file', action="store", dest='master_instructor_file', default='')
+parser.add_argument('--master_assignment_file', action="store", dest='master_assignment_file', default='')
+parser.add_argument('--master_course_file', action="store", dest='master_course_file', default='')
 args = parser.parse_args()
 
 
-def add_header_to_file(filename, master, overwrite=False):
+def add_header_to_file(filename, master, master_instructor, master_assignment, overwrite=False):
     found_text_files = False
+    found_all_metadata = True
     if '.txt' in filename:
         found_text_files = True
         filename_parts = filename.split('- ')
@@ -40,14 +43,18 @@ def add_header_to_file(filename, master, overwrite=False):
         target_language = file_folders[1]
         target_language_code = target_language[:4].upper()
         semester = re.sub(r'_', r' ',file_folders[2])
-        course = file_folders[4]
+        course = re.sub(r'_', r' ',file_folders[4])
         intructor_first_name = file_folders[5]
-        section = file_folders[6]
+        intructor_first_name = intructor_first_name.strip()
+        section_original = re.sub(r'_', r' ',file_folders[6])
+        section = section_original.split(' ')[1]
         mode_of_assignment = file_folders[7]
         assignment = file_folders[8]
+        assignment = assignment.strip()
         draft = file_folders[9]
 
         filtered_master1 = master[master['semester'] == semester]
+
 
         student_id = 0
         for index, row in filtered_master1.iterrows():
@@ -67,6 +74,7 @@ def add_header_to_file(filename, master, overwrite=False):
             print(filename)
             print(student_name)
             print('***********************************************')
+            found_all_metadata = False
 
         if filtered_master2.shape[0] > 1:
             print('***********************************************')
@@ -74,7 +82,29 @@ def add_header_to_file(filename, master, overwrite=False):
             print(filename)
             print(student_name)
             print('***********************************************')
-        else:
+            found_all_metadata = False
+
+
+        instructor_info = master_instructor[master_instructor['instructor'] == intructor_first_name]
+        if instructor_info.empty:
+            print('***********************************************')
+            print('Unable to find instructor: ')
+            print(filename)
+            print(intructor_first_name)
+            print('***********************************************')
+            found_all_metadata = False
+
+        master_assignment['Folder name'] = master_assignment['Folder name'].str.lower()
+        assignment_info = master_assignment[master_assignment['Folder name'] == assignment.lower()]
+        if assignment_info.empty:
+            print('***********************************************')
+            print('Unable to find assignment: ')
+            print(filename)
+            print(assignment)
+            print('***********************************************')
+            found_all_metadata = False
+
+        if found_all_metadata:
             print('Adding headers to file ' + filename)
             textfile = open(filename, 'r')
 
@@ -87,15 +117,18 @@ def add_header_to_file(filename, master, overwrite=False):
                 year_in_school_numeric = '3'
             elif year_in_school.lower() == 'senior':
                 year_in_school_numeric = '4'
+            else:
+                year_in_school_numeric = 'NA'
 
-            institution =  filtered_master2['institution'].to_string(index=False)
+            institution = filtered_master2['institution'].to_string(index=False)
             institution = institution.strip()
             institution_code = re.sub(r'[a-z\s]', r'',institution)
 
             language_code = ''
             first_languages = filtered_master2['native_languages'].to_string(index=False)
             first_languages = first_languages.strip()
-            
+            first_languages = re.sub(r'NaN', r'NA', first_languages)
+
             if ';' in first_languages:
                 language_code = 'MLT'
             elif 'Arabic' in first_languages:
@@ -108,6 +141,14 @@ def add_header_to_file(filename, master, overwrite=False):
                 language_code = 'KOR'
             elif 'Portuguese' in first_languages:
                 language_code = 'POR'
+            elif 'Russian' in first_languages:
+                language_code = 'RUS'
+            elif 'Bulgarian' in first_languages:
+                language_code = 'BUL'
+            elif 'Uzbek' in first_languages:
+                language_code = 'UZB'
+            else:
+                language_code = 'NAN'
 
             heritage_target_language = filtered_master2['heritage'].to_string(index=False)
             heritage_code = '0'
@@ -117,7 +158,9 @@ def add_header_to_file(filename, master, overwrite=False):
                 heritage_code = '1'
                 heritage_header = 'Yes'
 
-            assignment_code = 'AA'
+            assignment_code = assignment_info['Assignment Code'].to_string(index=False)
+            assignment_code = assignment_code.strip()
+            assignment_code = re.sub(r'NaN', r'NA', assignment_code)
 
             str_student_id = str(student_id)
             str_student_id = str_student_id[:-2]
@@ -132,7 +175,7 @@ def add_header_to_file(filename, master, overwrite=False):
             output_filename += '_'
             output_filename += heritage_code
             output_filename += '_'
-            output_filename += assignment
+            output_filename += assignment_code
             output_filename += '_'
             output_filename += draft
             output_filename += '_'
@@ -150,6 +193,21 @@ def add_header_to_file(filename, master, overwrite=False):
                     os.makedirs(path)
 
                 output_file = open(path + output_filename, 'w')
+
+                # look for course units info
+                if args.master_course_file:
+                    if '.xls' in args.master_course_file:
+                        master_course_file = pandas.ExcelFile(args.master_course_file)
+                        master_course_data = pandas.read_excel(master_course_file)
+                    elif '.csv' in args.master_instructor_file:
+                        master_course_data = pandas.read_csv(args.master_course_file)
+                    course_info = master_course_data[master_course_data['course'] == course]
+                    course_units = course_info['credit hours'].to_string(index=False)
+                else:
+                    course_units = filtered_master2['credit hours'].to_string(index=False)
+
+                course_units = course_units.strip()
+                course_units = re.sub(r'NaN', r'NA', course_units)
 
                 semester_season = semester.split()[0]
                 semester_year = semester.split()[1]
@@ -172,7 +230,9 @@ def add_header_to_file(filename, master, overwrite=False):
                 additional_languages = additional_languages.strip()
                 additional_languages = re.sub(r'NaN', r'NA', additional_languages)
 
-                instructor_code = '000'
+                instructor_code = instructor_info['instructor_code'].to_string(index=False)
+                instructor_code = instructor_code.strip()
+                instructor_code = re.sub(r'NaN', r'NA', instructor_code)
 
                 current_courses = filtered_master2['courses_taking'].to_string(index=False)
                 current_courses = current_courses.strip()
@@ -207,63 +267,61 @@ def add_header_to_file(filename, master, overwrite=False):
                 other_experience = re.sub(r'NaN', r'NA', other_experience)
 
                 # write headers
-                output_file.write('<Target Language: ' + target_language + '>\r\n')
-                output_file.write('<Course: ' + course + '>\r\n')
-                output_file.write('<L1: ' + first_languages + '>\r\n')
-                output_file.write('<Other Languages: ' + additional_languages + '>\r\n')
-                output_file.write('<Assignment: ' + assignment + '>\r\n')
-                output_file.write('<Draft: ' + draft + '>\r\n')
-                output_file.write('<Student ID: ' + str_student_id + '>\r\n')
-                output_file.write('<Institution: ' + institution + '>\r\n')
-                output_file.write('<Mode of Course: ' + mode_of_course + '>\r\n')
-                output_file.write('<Length of Course: ' + length_of_course + '>\r\n')
-                output_file.write('<Mode of Assignment: ' + mode_of_assignment +
-                                        '>\r\n')
-                output_file.write('<Course Year: ' + semester_year + '>\r\n')
-                output_file.write('<Course Semester: ' + semester_season+ '>\r\n')
-                output_file.write('<Instructor: ' + instructor_code + '>\r\n')
-                output_file.write('<Heritage of Target Language: ' +
-                                   heritage_header + '>\r\n')
-                output_file.write('<Proficiency Exam: ' + profiency_exam + '>\r\n')
-                output_file.write('<Proficiency Exam Score: ' + exam_scores + '>\r\n')
-                output_file.write('<Experience Abroad: ' + experience_abroad + '>\r\n')
-                output_file.write('<Other Experience with Target Language: ' +
-                                   other_experience + '>\r\n')
-                output_file.write('<Began Learning Target Language: ' + began_target_language + '>\r\n')
-                output_file.write('<Courses Currently Enrolled: ' +
-                                    current_courses + '>\r\n')
-                output_file.write('<Courses Previously Enrolled: '+
-                                    previous_courses +'>\r\n')
-                output_file.write('<Age: ' + age + '>\r\n')
-                output_file.write('<Year in School: ' + year_in_school + '>\r\n')
-                output_file.write('<Major: ' + major + '>\r\n')
-                output_file.write('<Minor: ' + minor + '>\r\n')
-                output_file.write("<End Header>\r\n\r\n")
+                print('<Target Language: ' + target_language + '>', file = output_file)
+                print('<Course: ' + course + '>', file = output_file)
+                print('<L1: ' + first_languages + '>', file = output_file)
+                print('<Other Languages: ' + additional_languages + '>', file = output_file)
+                print('<Assignment: ' + assignment + '>', file = output_file)
+                print('<Draft: ' + draft + '>', file = output_file)
+                print('<Student ID: ' + str_student_id + '>', file = output_file)
+                print('<Institution: ' + institution + '>', file = output_file)
+                print('<Mode of Course: ' + mode_of_course + '>', file = output_file)
+                print('<Length of Course: ' + length_of_course + '>', file = output_file)
+                print('<Credit Hours: ' + course_units + '>', file = output_file)
+                print('<Course Year: ' + semester_year + '>', file = output_file)
+                print('<Course Semester: ' + semester_season+ '>', file = output_file)
+                print('<Instructor: ' + instructor_code + '>', file = output_file)
+                print('<Section: ' + section + '>', file = output_file)
+                print('<Heritage of Target Language: ' +
+                                   heritage_header + '>', file = output_file)
+                print('<Proficiency Exam: ' + profiency_exam + '>', file = output_file)
+                print('<Proficiency Exam Score: ' + exam_scores + '>', file = output_file)
+                print('<Experience Abroad: ' + experience_abroad + '>', file = output_file)
+                print('<Other Experience with Target Language: ' +
+                                   other_experience + '>', file = output_file)
+                print('<Began Learning Target Language: ' + began_target_language + '>', file = output_file)
+                print('<Courses Currently Enrolled: ' +
+                                    current_courses + '>', file = output_file)
+                print('<Courses Previously Enrolled: '+
+                                    previous_courses +'>', file = output_file)
+                print('<Age: ' + age + '>', file = output_file)
+                print('<Year in School: ' + year_in_school_numeric + '>', file = output_file)
+                print('<Major: ' + major + '>', file = output_file)
+                print('<Minor: ' + minor + '>', file = output_file)
+                print("<End Header>", file = output_file)
+                print("", file = output_file)
 
-                for line in textfile:
-                    this_line = line.strip()
-                    if this_line != '':
-                        new_line = re.sub(r'\s+', r' ', this_line)
-                        new_line = new_line.strip()
-                        output_file.write(new_line+'\r\n')
+                contents = textfile.read()
+                print(contents, file = output_file)
+
 
                 output_file.close()
             textfile.close()
     return(found_text_files)
 
 
-def add_headers_recursive(directory, master, overwrite=False):
+def add_headers_recursive(directory, master, master_instructor, master_assignment, overwrite=False):
     found_text_files = False
     for dirpath, dirnames, files in os.walk(directory):
         for name in files:
-            is_this_a_text_file = add_header_to_file(os.path.join(dirpath, name), master, overwrite)
+            is_this_a_text_file = add_header_to_file(os.path.join(dirpath, name), master, master_instructor, master_assignment, overwrite)
             if is_this_a_text_file:
                 found_text_files = True
     if not found_text_files:
         print('No text files found in the directory.')
 
 
-if args.master_file and args.dir and args.master_instructor_file:
+if args.master_file and args.dir and args.master_instructor_file and args.master_assignment_file:
     if '.xls' in args.master_file:
         master_file = pandas.ExcelFile(args.master_file)
         master_data = pandas.read_excel(master_file)
@@ -276,6 +334,12 @@ if args.master_file and args.dir and args.master_instructor_file:
     elif '.csv' in args.master_instructor_file:
         master_instructor_data = pandas.read_csv(args.master_instructor_file)
 
-    add_headers_recursive(args.dir, master_data, args.overwrite)
+    if '.xls' in args.master_assignment_file:
+        master_assignment_file = pandas.ExcelFile(args.master_assignment_file)
+        master_assignment_data = pandas.read_excel(master_assignment_file)
+    elif '.csv' in args.master_assignment_file:
+        master_assignment_data = pandas.read_csv(args.master_assignment_file)
+
+    add_headers_recursive(args.dir, master_data, master_instructor_data, master_assignment_data, args.overwrite)
 else:
-    print('You need to supply a valid master file, a directory with textfiles, and a master instructor file')
+    print('You need to supply a valid master file, a directory with textfiles, a master instructor file, and a master assignment file')
