@@ -6,15 +6,17 @@
 # names of students and instructors are replaced with <name>
 #
 # Usage example:
-#   python deidentify.py --directory=files_with_headers_Spring_2018 --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
-#   python deidentify.py --directory=files_with_headers_Fall_2018 --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx
+#   python deidentify.py --directory=../../../Spring\ 2018/files_with_headers/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
+#   python deidentify.py --directory=../../../Fall\ 2018/files_with_headers/ --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx
 #   python deidentify.py --directory=../../../Fall\ 2017/files_with_headers/Fall\ 2017/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
 
 import argparse
-import sys
-import re
 import os
 import pandas
+import re
+import sys
+
+from nltk.corpus import stopwords
 
 # Define the way we retrieve arguments sent to the script.
 parser = argparse.ArgumentParser(description='De-identify Individual Textfile')
@@ -24,7 +26,7 @@ parser.add_argument('--master_file', action="store", dest='master_file', default
 args = parser.parse_args()
 
 
-def deidentify_file(filename, master, overwrite=False):
+def deidentify_file(filename, master, stops, overwrite=False):
     # only process text files
     found_text_files = False
     if '.txt' in filename:
@@ -80,41 +82,79 @@ def deidentify_file(filename, master, overwrite=False):
                 instructor_last_name = row['Instructor Last Name']
                 instructor_last_name = instructor_last_name.strip()
 
+                # constants that come before and after the regex
+                before_regex = '(?<=\s|\.|\,|"|\()'
+                after_regex = '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)'
+
                 # add different name combinations to list of names
                 # re.I flag is to ignore case
                 # re.DOTALL is to find all instances of regex
-                names2remove.append(re.compile('^' + student_first_name + '\s?' + student_last_name + '(\b|(\r+)?\n|\s|\.|\)|,|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('^' + student_last_name + '\s?' + student_first_name + '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('^' + student_last_name + '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('^' + student_first_name + '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('(\s|\.|\,|"|\()' + student_first_name + '\s?' + student_last_name + '(\b|(\r+)?\n|\s|\.|\)|,|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('(\s|\.|\,|"|\()' + student_last_name + '\s?' + student_first_name + '(\b|(\r+)?\n|\s|\.|\)|,|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('(\s|\.|\,|"|\()' + student_last_name+ '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('(\s|\.|\,|"|\()' + student_first_name + '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)', re.I | re.DOTALL))
+                names2remove.append(re.compile('^' + student_first_name + '\s?' + student_last_name + after_regex, re.I | re.DOTALL))
+                names2remove.append(re.compile('^' + student_last_name + '\s?' + student_first_name + after_regex, re.I | re.DOTALL))
+                names2remove.append(re.compile(before_regex + student_first_name + '\s?' + student_last_name + after_regex, re.I | re.DOTALL))
+                names2remove.append(re.compile(before_regex + student_last_name + '\s?' + student_first_name + after_regex, re.I | re.DOTALL))
+
+                # ignore case only if student's name not an English word
+                if student_last_name.lower() not in stops:
+                    names2remove.append(re.compile('^' + student_last_name + after_regex, re.I | re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_last_name + after_regex, re.I | re.DOTALL))
+                else:
+                    names2remove.append(re.compile('^' + student_last_name + after_regex, re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_last_name + after_regex, re.DOTALL))
+
+                if student_first_name.lower() not in stops:
+                    names2remove.append(re.compile('^' + student_first_name + after_regex, re.I | re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_first_name + after_regex, re.I | re.DOTALL))
+                else:
+                    names2remove.append(re.compile('^' + student_first_name + after_regex, re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_first_name + after_regex, re.DOTALL))
+
                 if student_alternate_name != '':
-                    names2remove.append(re.compile('^' + student_alternate_name + '(\b|(\r+)?\n|\s|\.|,)', re.I| re.DOTALL))
-                    names2remove.append(re.compile('^' + student_alternate_name + '\s?' + student_last_name + '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I | re.DOTALL))
-                    names2remove.append(re.compile('^' + student_alternate_name + '\s?' + student_first_name + '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I | re.DOTALL))
-                    names2remove.append(re.compile('^' + student_last_name + '\s?' + student_alternate_name + '\s?' + student_first_name + '(\b|(\r+)?\n|\s|\.|,|!|\?)', re.I | re.DOTALL))
-                    names2remove.append(re.compile('(\s|\.|\,|\(|")' + student_alternate_name+ '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)', re.I| re.DOTALL))
-                    names2remove.append(re.compile('(\s|\.|\,|\(|")' + student_alternate_name + '\s?' + student_last_name + '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I | re.DOTALL))
-                    names2remove.append(re.compile('(\s|\.|\,|\(|")' + student_alternate_name + '\s?' + student_first_name + '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I | re.DOTALL))
-                    names2remove.append(re.compile('(\s|\.|\,|\(|")' + student_last_name + '\s?' + student_alternate_name+ '\s?' + student_first_name+ '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I | re.DOTALL))
-                names2remove.append(re.compile('^' + instructor_first_name + '\s?' + instructor_last_name + '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I| re.DOTALL))
-                names2remove.append(re.compile('^' + instructor_first_name + '\s?' + instructor_last_name + '$', re.I| re.DOTALL))
-                names2remove.append(re.compile('^' + instructor_last_name + '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I| re.DOTALL))
-                #names2remove.append(re.compile('(^\s?)' + row['Instructor First Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
-                names2remove.append(re.compile('(\s|\.|\,|\(|")' + instructor_first_name + '\s?' + instructor_last_name+ '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I| re.DOTALL))
-                names2remove.append(re.compile('(\s|\.|\,|\(|")' + instructor_last_name+ '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I| re.DOTALL))
+                    if student_alternate_name.lower() not in stops:
+                        names2remove.append(re.compile('^' + student_alternate_name + after_regex, re.I| re.DOTALL))
+                        names2remove.append(re.compile(before_regex + student_alternate_name + after_regex, re.I| re.DOTALL))
+                    else:
+                        names2remove.append(re.compile('^' + student_alternate_name + after_regex, re.DOTALL))
+                        names2remove.append(re.compile(before_regex + student_alternate_name + after_regex, re.DOTALL))
+
+                    names2remove.append(re.compile('^' + student_alternate_name + '\s?' + student_last_name + after_regex, re.I | re.DOTALL))
+                    names2remove.append(re.compile('^' + student_alternate_name + '\s?' + student_first_name + after_regex, re.I | re.DOTALL))
+                    names2remove.append(re.compile('^' + student_last_name + '\s?' + student_alternate_name + '\s?' + student_first_name + after_regex, re.I | re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_alternate_name + after_regex, re.I| re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_alternate_name + '\s?' + student_last_name + after_regex, re.I | re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_alternate_name + '\s?' + student_first_name + after_regex, re.I | re.DOTALL))
+                    names2remove.append(re.compile(before_regex + student_last_name + '\s?' + student_alternate_name+ '\s?' + student_first_name+ after_regex, re.I | re.DOTALL))
+                    alternate_name_parts = student_alternate_name.split(' ')
+                    for name_part in alternate_name_parts:
+                        if name_part.lower() not in stops:
+                            names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
+                            names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
+                        else:
+                            names2remove.append(re.compile('^' + name_part + after_regex , re.DOTALL))
+                            names2remove.append(re.compile(before_regex + name_part + after_regex , re.DOTALL))
+                names2remove.append(re.compile('^' + instructor_first_name + '\s?' + instructor_last_name + after_regex, re.I| re.DOTALL))
+                names2remove.append(re.compile('^' + instructor_last_name + after_regex, re.I| re.DOTALL))
+                names2remove.append(re.compile(before_regex + instructor_first_name + '\s?' + instructor_last_name + after_regex, re.I| re.DOTALL))
+                names2remove.append(re.compile(before_regex + instructor_last_name + after_regex, re.I| re.DOTALL))
                 #names2remove.append(re.compile('\s' + row['Instructor First Name'] + '(\b|(\r+)?\n|\s)', re.I| re.DOTALL))
 
             found_text_body = False
+            if '_RF_' in filename:
+                this_is_reflection = True
+            else:
+                this_is_reflection = False
+
             for line in textfile:
                 new_line = line
                 # for every name in the list of names
                 for name in names2remove:
                     # replace the name with <name>
-                    new_line = re.sub(name, ' <name> ', new_line)
+                    new_line = re.sub(name, r'<name>\g<1>', new_line)
+
+                # Reflection assignment has instructor all over
+                if this_is_reflection:
+                    this_pattern = re.compile(instructor_first_name, re.I| re.DOTALL)
+                    new_line = re.sub(this_pattern, r'<name>', new_line)
 
                 # check if there's punctuation at the end of the line
                 # eliminate line breaks and trailing spaces
@@ -176,29 +216,24 @@ def deidentify_file(filename, master, overwrite=False):
                     cleaned_line = cleaned_line.strip()
                     cleaned_line1 = 'not empty'
                     # check if line starts with identifying words
-                    matches = re.findall(r'^(professor|prof\.|teacher|instructor|m\.|mrs?\.|ms\.|dr\.|student|net\s?id|id)', new_line2, flags = re.IGNORECASE)
+                    matches = re.findall(r'^(professor|prof\.|teacher|instructor|m\.|mrs?\.|ms\.|dr\.|student|net\s?id|id)', new_line, flags = re.IGNORECASE)
                     if len(matches) != 0:
                         # remove from line patterns for proper names
                         cleaned_line1 = re.sub(r'(\r+)?\n', r'', new_line)
                         cleaned_line1 = re.sub(r'Mr\.|Dr\.|Mr?s\.|[A-Z]\.|\s[A-Za-z]\s', r'', cleaned_line1)
                         cleaned_line1 = re.sub(r'(,|\.|\:)', r'', cleaned_line1)
                         cleaned_line1 = re.sub(r'<name>', r'', cleaned_line1)
-                        cleaned_line1 = re.sub(r'(([A-Z][a-z]+\s){1,3})?[A-Z][a-z]+', r'', cleaned_line)
+                        cleaned_line1 = re.sub(r'(([A-Z][a-z]+\s){1,3})?[A-Z][a-z]+', r'', cleaned_line1)
                         # remove any extra spaces
                         cleaned_line1 = re.sub(r'\s', r'', cleaned_line1)
                         cleaned_line1 = cleaned_line1.strip()
                     if (cleaned_line != '' and cleaned_line1 != ''):
                         if not ('.' not in new_line and '<name>' in new_line):
                             # check if like is a Word comment
-                            if not new_line[0] == '[':
-                                new_line2 = re.sub(r'\s+', r' ', new_line2)
-                                # Reflection assignment has instructor all over
-                                if '_RF_' in filename:
-                                    this_pattern = re.compile('\s' + instructor_first_name + '(\b|(\r+)?\n|\s|\.|,|:|!|\?)', re.I| re.DOTALL)
-                                    new_line2 = re.sub(this_pattern, r' <name> ', new_line2)
-                                new_line2 = re.sub(r'\s+', r' ', new_line2)
+                            if new_line[0] != '[':
+                                new_line2 = re.sub(r'\s+', r' ', new_line)
                                 # remove other Word comments, e.g., [AP 1]
-                                new_line2 = re.sub(r'\[([A-Z][A-Z]\s?[0-9]{1,2})\]', r'', new_line)
+                                new_line2 = re.sub(r'\[([A-Z][A-Z]\s?[0-9]{1,2})\]', r'', new_line2)
                                 # replace emails with <email>
                                 new_line2 = re.sub(r'([A-Z]|[a-z]|[0-9]|\.)+@.+', r'<email>', new_line2)
                                 output_file.write(new_line2.strip() + '\r\n')
@@ -208,12 +243,11 @@ def deidentify_file(filename, master, overwrite=False):
             textfile.close()
     return(found_text_files)
 
-def deidentify_recursive(directory, master, overwrite=False):
+def deidentify_recursive(directory, master, stops, overwrite=False):
     found_text_files = False
     for dirpath, dirnames, files in os.walk(directory):
         for name in files:
-            print(name)
-            is_this_a_text_file = deidentify_file(os.path.join(dirpath, name), master, overwrite)
+            is_this_a_text_file = deidentify_file(os.path.join(dirpath, name), master, stops, overwrite)
             if is_this_a_text_file:
                 found_text_files = True
     if not found_text_files:
@@ -227,6 +261,8 @@ if args.master_file and args.dir:
     elif '.csv' in args.master_file:
         master_data = pandas.read_csv(args.master_file)
 
-    deidentify_recursive(args.dir, master_data, args.overwrite)
+    stops = stopwords.words('english')
+
+    deidentify_recursive(args.dir, master_data, stops, args.overwrite)
 else:
     print('You need to supply a valid master file and directory with textfiles')
