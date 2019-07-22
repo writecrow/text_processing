@@ -7,6 +7,7 @@
 # Usage example:
 #    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/normalized_all_semesters/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
 #    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/ --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
+#    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/RSSS_202/Novikov/Section_001-2/Writing/Climate_change --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 
 
 import argparse
@@ -190,7 +191,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             assignment_code = re.sub(r'NaN', r'NA', assignment_code)
 
             str_student_id = str(student_id)
-            str_student_id = str_student_id[:-2]
+            str_student_id = re.sub(r'\.0',r'',str_student_id)
 
             new_course = re.sub(r'\s+', r'_', course)
 
@@ -220,6 +221,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                     os.makedirs(path)
 
                 output_file = open(path + output_filename, 'w')
+                #print(path + output_filename)
 
                 # look for course units info
                 if args.master_course_file:
