@@ -5,11 +5,10 @@
 # metadata headers are added to each individual text files
 #
 # Mac OS example:
-#    python add_headers.py --directory=../../../Spring\ 2018/normalized/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018\ updated.csv
-#    python add_headers.py --directory=../../../Fall\ 2017/normalized/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
-#    python add_headers.py --directory=../../../Fall\ 2018/normalized/ --master_file=../../../Metadata/Fall\ 2018/Meta_Fall_2018_updated.csv
+#    python add_headers.py --directory=Spring\ 2018/normalized/ --master_file=Metadata_Spring_2018_updated.csv
+#    python add_headers.py --directory=Fall\ 2018/normalized/ --master_file=Metadata_Fall_2018_updated.csv
 # Windows run with Anaconda Prompt example:
-#    python add_headers.py --directory="../../../Fall 2018/normalized/" --master_file="../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx"
+#    python add_headers.py --directory="Fall 2018/normalized/" --master_file="Metadata_Fall_2018_updated.csv"
 
 import argparse
 import sys
@@ -73,6 +72,8 @@ def add_header_to_file(filename, master, overwrite=False):
 
             year_in_school = filtered_master2['Acad Level'].to_string(index=False)
             year_in_school = year_in_school.strip()
+            year_in_school_numeric = 'NA'
+
             if year_in_school not in ['1','2','3','4']:
                 if year_in_school.lower() == 'freshman':
                     year_in_school_numeric = '1'
@@ -176,7 +177,7 @@ def add_header_to_file(filename, master, overwrite=False):
                 print("<Length: " + length + ">", file = output_file)
                 print("<Assignment: " + assignment + ">", file = output_file)
                 print("<Draft: " + draft + ">", file = output_file)
-                print("<Year in School: " + year_in_school + ">", file = output_file)
+                print("<Year in School: " + year_in_school_numeric + ">", file = output_file)
                 print("<Gender: " + gender + ">", file = output_file)
                 print("<Course Year: " + year + ">", file = output_file)
                 print("<Course Semester: " + semester + ">" , file = output_file)
