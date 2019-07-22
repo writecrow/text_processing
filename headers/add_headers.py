@@ -5,9 +5,9 @@
 # metadata headers are added to each individual text files
 #
 # Mac OS example:
-#    python add_headers.py --directory=../../../Spring\ 2018/normalized/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
+#    python add_headers.py --directory=../../../Spring\ 2018/normalized/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018\ updated.csv
 #    python add_headers.py --directory=../../../Fall\ 2017/normalized/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
-#    python add_headers.py --directory=../../../Fall\ 2018/normalized/ --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx
+#    python add_headers.py --directory=../../../Fall\ 2018/normalized/ --master_file=../../../Metadata/Fall\ 2018/Meta_Fall_2018_updated.csv
 # Windows run with Anaconda Prompt example:
 #    python add_headers.py --directory="../../../Fall 2018/normalized/" --master_file="../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx"
 
@@ -61,14 +61,40 @@ def add_header_to_file(filename, master, overwrite=False):
             filename_parts2 = clean_filename.split('/')
 
             course = filtered_master2['Catalog Nbr'].to_string(index=False)
+            course = course.strip()
+            course = re.sub(r'NaN', r'NA', course)
+
             assignment = filename_parts2[4][:2]
             draft = filename_parts2[4][2:]
-            print(clean_filename)
-            print(filename_parts2)
             country_code = filtered_master2['Birth Country Code'].to_string(index=False)
-            year_in_school = 'NA'
+            country_code = country_code.strip()
+            country_code = re.sub(r'NaN', r'NAN', country_code)
+
+
+            year_in_school = filtered_master2['Acad Level'].to_string(index=False)
+            year_in_school = year_in_school.strip()
+            if year_in_school not in ['1','2','3','4']:
+                if year_in_school.lower() == 'freshman':
+                    year_in_school_numeric = '1'
+                elif year_in_school.lower() == 'sophomore':
+                    year_in_school_numeric = '2'
+                elif year_in_school.lower() == 'junior':
+                    year_in_school_numeric = '3'
+                elif year_in_school.lower() == 'senior':
+                    year_in_school_numeric = '4'
+                else:
+                    year_in_school_numeric = 'NA'
+            else:
+                year_in_school_numeric = year_in_school
+
             gender = filtered_master2['Gender'].to_string(index=False)
+            gender = gender.strip()
+            gender = re.sub(r'NaN', r'NA', gender)
+
             crow_id = filtered_master2['Crow ID'].to_string(index=False)
+            crow_id = crow_id.strip()
+            crow_id = re.sub(r'NaN', r'NA', crow_id)
+
             institution_code = re.sub(r'[a-z\s]', r'', filtered_master2['institution'].to_string(index=False))
 
             #course assignment draft country yearinschool gender studentID institution '.txt'
@@ -81,7 +107,7 @@ def add_header_to_file(filename, master, overwrite=False):
             output_filename += '_'
             output_filename += country_code
             output_filename += '_'
-            output_filename += year_in_school
+            output_filename += year_in_school_numeric
             output_filename += '_'
             output_filename += gender
             output_filename += '_'
@@ -94,8 +120,8 @@ def add_header_to_file(filename, master, overwrite=False):
 
             if 'Series' not in output_filename:
                 term = filtered_master2['term'].to_string(index=False)
-                folder_term = term.strip()
-                path = "files_with_headers/" + term + "/ENGL" + course+ "/" + assignment + "/" + draft + "/"
+                term = term.strip()
+                path = "files_with_headers/" + term + "/ENGL " + course+ "/" + assignment + "/" + draft + "/"
 
                 if not os.path.exists(path):
                     os.makedirs(path)
@@ -103,7 +129,10 @@ def add_header_to_file(filename, master, overwrite=False):
                 output_file = open(path + output_filename, 'w')
 
                 country = filtered_master2['Descr'].to_string(index=False)
+                country = country.strip()
+
                 institution = filtered_master2['institution'].to_string(index=False)
+                institution = institution.strip()
 
                 semester = term.split()[0]
                 year = term.split()[1]
@@ -118,6 +147,18 @@ def add_header_to_file(filename, master, overwrite=False):
                 section = filtered_master2['Class Section'].to_string(index=False)
                 mode = filtered_master2['mode_of_course'].to_string(index=False)
                 length = filtered_master2['length_of_course'].to_string(index=False)
+
+                college = college.strip()
+                program = program.strip()
+                TOEFL_COMPI = TOEFL_COMPI.strip()
+                TOEFL_Listening = TOEFL_Listening.strip()
+                TOEFL_Reading = TOEFL_Reading.strip()
+                TOEFL_Writing = TOEFL_Writing.strip()
+                TOEFL_Speaking = TOEFL_Speaking.strip()
+                instructor = instructor.strip()
+                section = section.strip()
+                mode = mode.strip()
+                length = length.strip()
 
                 country = re.sub(r'NaN', r'NA', country)
                 TOEFL_COMPI = re.sub(r'NaN', r'NA', TOEFL_COMPI)

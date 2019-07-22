@@ -5,8 +5,8 @@
 # metadata headers are added to each individual text files
 #
 # Usage example:
-#    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
-#    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Processed/ --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
+#    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/normalized_all_semesters/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
+#    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/ --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 
 
 import argparse
@@ -36,22 +36,45 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
         student_name = re.sub(r'\s+', r' ', student_name)
         if student_name[-1] == '-':
             student_name = student_name[:-1]
+
+
+        # get info from file folder structure
         clean_filename = re.sub(r'\\', r'/', filename)
         clean_filename = re.sub(r'\.\.\/', r'', filename)
         file_folders = clean_filename.split('/')
 
+        # where is the semester folder?
+        where_semester = -1
+        for i in range(0,len(file_folders)):
+            folder = file_folders[i]
+            if 'Spring' in folder:
+                where_semester = i
+            elif 'Fall' in folder:
+                where_semester = i
+            elif 'Summer' in folder:
+                where_semester = i
+            elif 'Winter' in folder:
+                where_semester = i
+
+        if where_semester == -1:
+            print('***********************************************')
+            print('Unable to find semester folder for this file: ')
+            print(filename)
+            print('***********************************************')
+            found_all_metadata = False
+
         target_language = file_folders[1]
         target_language_code = target_language[:4].upper()
-        semester = re.sub(r'_', r' ',file_folders[2])
-        course = re.sub(r'_', r' ',file_folders[4])
-        intructor_first_name = file_folders[5]
+        semester = re.sub(r'_', r' ',file_folders[where_semester])
+        course = re.sub(r'_', r' ',file_folders[where_semester+2])
+        intructor_first_name = file_folders[where_semester+3]
         intructor_first_name = intructor_first_name.strip()
-        section_original = re.sub(r'_', r' ',file_folders[6])
+        section_original = re.sub(r'_', r' ',file_folders[where_semester+4])
         section = section_original.split(' ')[1]
-        mode_of_assignment = file_folders[7]
-        assignment = file_folders[8]
+        mode_of_assignment = file_folders[where_semester+5]
+        assignment = file_folders[where_semester+6]
         assignment = assignment.strip()
-        draft = file_folders[9]
+        draft = file_folders[where_semester+7]
 
         filtered_master1 = master[master['semester'] == semester]
 
@@ -110,15 +133,19 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
 
             year_in_school = filtered_master2['year'].to_string(index=False)
             year_in_school = year_in_school.strip()
-            year_in_school_numeric = '1'
-            if year_in_school.lower() == 'sophomore':
-                year_in_school_numeric = '2'
-            elif year_in_school.lower() == 'junior':
-                year_in_school_numeric = '3'
-            elif year_in_school.lower() == 'senior':
-                year_in_school_numeric = '4'
+            if year_in_school not in ['1','2','3','4']:
+                if year_in_school.lower() == 'freshman':
+                    year_in_school_numeric = '1'
+                elif year_in_school.lower() == 'sophomore':
+                    year_in_school_numeric = '2'
+                elif year_in_school.lower() == 'junior':
+                    year_in_school_numeric = '3'
+                elif year_in_school.lower() == 'senior':
+                    year_in_school_numeric = '4'
+                else:
+                    year_in_school_numeric = 'NA'
             else:
-                year_in_school_numeric = 'NA'
+                year_in_school_numeric = year_in_school
 
             institution = filtered_master2['institution'].to_string(index=False)
             institution = institution.strip()
