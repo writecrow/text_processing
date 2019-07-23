@@ -8,6 +8,7 @@
 #    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/normalized_all_semesters/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
 #    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/ --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 #    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/RSSS_202/Novikov/Section_001-2/Writing/Climate_change --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
+#    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Fall_2018/Normalized/ --master_file=../../../MACAWS/Russian/newest_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 
 
 import argparse
@@ -32,17 +33,27 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
     found_all_metadata = True
     if '.txt' in filename:
         found_text_files = True
-        filename_parts = filename.split('- ')
-        student_name = re.sub(r'\.txt', r'', filename_parts[1])
-        student_name = re.sub(r'\s+', r' ', student_name)
-        if student_name[-1] == '-':
-            student_name = student_name[:-1]
-
 
         # get info from file folder structure
         clean_filename = re.sub(r'\\', r'/', filename)
         clean_filename = re.sub(r'\.\.\/', r'', filename)
         file_folders = clean_filename.split('/')
+
+        filename_parts = clean_filename.split('- ')
+
+        if len(filename_parts) == 1:
+            filename_parts = clean_filename.split('/')
+            student_name = re.sub(r'\.txt', r'', filename_parts[-1])
+            student_name = re.sub(r'\s+', r' ', student_name)
+        else:
+            student_name = re.sub(r'\.txt', r'', filename_parts[1])
+            student_name = re.sub(r'\s+', r' ', student_name)
+            if student_name[-1] == '-':
+                student_name = student_name[:-1]
+
+        student_name = re.sub(r'_',r' ', student_name)
+        student_name = re.sub(r'Essay.+',r'', student_name, re.I | re.DOTALL)
+        student_name = student_name.strip()
 
         # where is the semester folder?
         where_semester = -1
@@ -77,12 +88,20 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
         assignment = assignment.strip()
         draft = file_folders[where_semester+7]
 
+        if len(draft) > 2 and draft[0] != 'D':
+            print('***********************************************')
+            print('Unable to find draft folder for this file: ')
+            print(filename)
+            print('***********************************************')
+            found_all_metadata = False
+
+
         filtered_master1 = master[master['semester'] == semester]
 
 
         student_id = 0
         for index, row in filtered_master1.iterrows():
-            this_row_filename = row['filename']
+            this_row_filename = str(row['filename'])
             this_row_filename = this_row_filename.strip()
             this_row_filename = re.sub(r'\s', r'\\s', this_row_filename)
             this_regex = re.compile(this_row_filename, re.I)
@@ -97,6 +116,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             print('Unable to find metadata for this file: ')
             print(filename)
             print(student_name)
+            #print(file_folders)
             print('***********************************************')
             found_all_metadata = False
 
@@ -105,6 +125,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             print('More than one row in metadata for this file: ')
             print(filename)
             print(student_name)
+            #print(file_folders)
             print('***********************************************')
             found_all_metadata = False
 
@@ -182,7 +203,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             heritage_code = '0'
             heritage_header = 'No'
 
-            if heritage_target_language == '1.0':
+            if heritage_target_language == '1.0' or heritage_target_language == 'TRUE':
                 heritage_code = '1'
                 heritage_header = 'Yes'
 
