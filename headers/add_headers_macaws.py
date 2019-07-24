@@ -6,6 +6,7 @@
 #
 # Usage example:
 #    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/normalized_all_semesters/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
+#    python add_headers_macaws.py --directory=../../../MACAWS/Portuguese/normalized_all_semesters/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
 #    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/ --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 #    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/RSSS_202/Novikov/Section_001-2/Writing/Climate_change --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 #    python add_headers_macaws.py --directory=../../../MACAWS/Russian/Fall_2018/Normalized/ --master_file=../../../MACAWS/Russian/newest_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
@@ -33,6 +34,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
     found_all_metadata = True
     if '.txt' in filename:
         found_text_files = True
+        print('Checking metadata for file ' + filename)
 
         # get info from file folder structure
         clean_filename = re.sub(r'\\', r'/', filename)
@@ -62,10 +64,6 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             if 'Spring' in folder:
                 where_semester = i
             elif 'Fall' in folder:
-                where_semester = i
-            elif 'Summer' in folder:
-                where_semester = i
-            elif 'Winter' in folder:
                 where_semester = i
 
         if where_semester == -1:
@@ -176,7 +174,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             language_code = ''
             first_languages = filtered_master2['native_languages'].to_string(index=False)
             first_languages = first_languages.strip()
-            first_languages = re.sub(r'NaN', r'NA', first_languages)
+            first_languages = re.sub(r'^NaN$', r'NA', first_languages)
 
             if ';' in first_languages:
                 language_code = 'MLT'
@@ -209,7 +207,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
 
             assignment_code = assignment_info['Assignment Code'].to_string(index=False)
             assignment_code = assignment_code.strip()
-            assignment_code = re.sub(r'NaN', r'NA', assignment_code)
+            assignment_code = re.sub(r'^NaN$', r'NA', assignment_code)
 
             str_student_id = str(student_id)
             str_student_id = re.sub(r'\.0',r'',str_student_id)
@@ -257,18 +255,19 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                     course_units = filtered_master2['credit hours'].to_string(index=False)
 
                 course_units = course_units.strip()
-                course_units = re.sub(r'NaN', r'NA', course_units)
+                course_units = re.sub(r'^NaN$', r'NA', course_units)
 
                 semester_season = semester.split()[0]
                 semester_year = semester.split()[1]
 
                 major = filtered_master2['major'].to_string(index=False)
                 major = major.strip()
-                major = re.sub(r'NaN', r'NA', major)
+                major = re.sub(r'^NaN$', r'NA', major)
 
                 minor = filtered_master2['minor'].to_string(index=False)
                 minor = minor.strip()
-                minor = re.sub(r'NaN', r'NA', minor)
+                minor = re.sub(r'^NaN$', r'NA', minor)
+                minor = re.sub(r'^-$', r'NA', minor)
 
                 mode_of_course = filtered_master2['mode_of_course'].to_string(index=False)
                 mode_of_course = mode_of_course.strip()
@@ -278,50 +277,53 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
 
                 additional_languages = filtered_master2['aditional_languages'].to_string(index=False)
                 additional_languages = additional_languages.strip()
-                additional_languages = re.sub(r'NaN', r'NA', additional_languages)
+                additional_languages = re.sub(r'^NaN$', r'NA', additional_languages)
 
                 instructor_code = instructor_info['instructor_code'].to_string(index=False)
                 instructor_code = instructor_code.strip()
-                instructor_code = re.sub(r'NaN', r'NA', instructor_code)
+                instructor_code = re.sub(r'^NaN$', r'NA', instructor_code)
 
                 current_courses = filtered_master2['courses_taking'].to_string(index=False)
                 current_courses = current_courses.strip()
-                current_courses = re.sub(r'NaN', r'NA', current_courses)
+                current_courses = re.sub(r'^NaN$', r'NA', current_courses)
 
                 previous_courses = filtered_master2['previous_courses'].to_string(index=False)
                 previous_courses = previous_courses.strip()
-                previous_courses = re.sub(r'NaN', r'NA', previous_courses)
+                previous_courses = re.sub(r'^NaN$', r'NA', previous_courses)
 
                 age = filtered_master2['age'].to_string(index=False)
                 age = age.strip()
-                age = re.sub(r'NaN', r'NA', age)
+                age = re.sub(r'^NaN$', r'NA', age)
 
                 began_target_language = filtered_master2['began_target_language'].to_string(index=False)
                 began_target_language = began_target_language.strip()
-                began_target_language = re.sub(r'NaN', r'NA', began_target_language)
+                began_target_language = re.sub(r'^NaN$', r'NA', began_target_language)
 
                 profiency_exam = filtered_master2['profiency_exam'].to_string(index=False)
                 profiency_exam = profiency_exam.strip()
-                profiency_exam = re.sub(r'NaN', r'NA', profiency_exam)
+                profiency_exam = re.sub(r'^NaN$', r'NA', profiency_exam)
 
                 exam_scores = filtered_master2['exam_scores'].to_string(index=False)
                 exam_scores = exam_scores.strip()
-                exam_scores = re.sub(r'NaN', r'NA', exam_scores)
+                exam_scores = re.sub(r'^NaN$', r'NA', exam_scores)
 
                 experience_abroad = filtered_master2['experience_abroad'].to_string(index=False)
                 experience_abroad = experience_abroad.strip()
-                experience_abroad = re.sub(r'NaN', r'NA', experience_abroad)
+                experience_abroad = re.sub(r'^NaN$', r'NA', experience_abroad)
 
                 other_experience = filtered_master2['other_experience'].to_string(index=False)
                 other_experience = other_experience.strip()
-                other_experience = re.sub(r'NaN', r'NA', other_experience)
+                other_experience = re.sub(r'^NaN$', r'NA', other_experience)
 
                 # write headers
                 print('<Target Language: ' + target_language + '>', file = output_file)
                 print('<Course: ' + course + '>', file = output_file)
                 print('<L1: ' + first_languages + '>', file = output_file)
                 print('<Other Languages: ' + additional_languages + '>', file = output_file)
-                print('<Assignment: ' + assignment + '>', file = output_file)
+                #print('<Macro Genre: ' + macro_genre + '>', file = output_file)
+                #print('<Assignment Topic: ' + assignment_topic + '>', file = output_file)
+                print('<Assignment Name: ' + assignment + '>', file = output_file)
+                print('<Assignment Code: ' + assignment_code + '>', file = output_file)
                 print('<Draft: ' + draft + '>', file = output_file)
                 print('<Student ID: ' + str_student_id + '>', file = output_file)
                 print('<Institution: ' + institution + '>', file = output_file)
@@ -337,9 +339,9 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                 print('<Proficiency Exam: ' + profiency_exam + '>', file = output_file)
                 print('<Proficiency Exam Score: ' + exam_scores + '>', file = output_file)
                 print('<Experience Abroad: ' + experience_abroad + '>', file = output_file)
-                print('<Other Experience with Target Language: ' +
+                print('<Out-of-class Target Language Practice: ' +
                                    other_experience + '>', file = output_file)
-                print('<Began Learning Target Language: ' + began_target_language + '>', file = output_file)
+                print('<Began Formal Education in the Target Language: ' + began_target_language + '>', file = output_file)
                 print('<Courses Currently Enrolled: ' +
                                     current_courses + '>', file = output_file)
                 print('<Courses Previously Enrolled: '+
