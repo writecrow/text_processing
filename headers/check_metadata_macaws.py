@@ -158,7 +158,8 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
 
         master_assignment['Folder name'] = master_assignment['Folder name'].str.lower()
         assignment_info1 = master_assignment[master_assignment['Folder name'] == assignment.lower()]
-        assignment_info2 = assignment_info1[assignment_info1['Course'] == course]
+        assignment_info3 = assignment_info1[assignment_info1['Mode'] == mode_of_assignment]
+        assignment_info2 = assignment_info3[assignment_info3['Course'] == course]
         if assignment_info2.empty:
             print('***********************************************')
             print(colored('Unable to find assignment: ', 'red'))
