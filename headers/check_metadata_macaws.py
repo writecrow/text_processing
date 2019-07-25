@@ -5,10 +5,9 @@
 # metadata headers are added to each individual text files
 #
 # Usage example:
-#    python check_metadata_macaws.py --directory=../../../MACAWS/Portuguese/normalized_all_semesters/Spring_2017/Processed/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
 #    python check_metadata_macaws.py --directory=../../../MACAWS/Portuguese/normalized_all_semesters/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx --master_course_file=../../../MACAWS/Portuguese/metadata/port_course_credit_hours.xlsx
-#    python check_metadata_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/ --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
-#    python check_metadata_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/RSSS_202/Novikov/Section_001-2/Writing/Climate_change --master_file=../../../MACAWS/Russian/new_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
+#    python check_metadata_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/ --master_file=../../../MACAWS/Russian/newest_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
+#    python check_metadata_macaws.py --directory=../../../MACAWS/Russian/Spring_2018/Normalized/RSSS_202/Novikov/Section_001-2/Writing/Climate_change --master_file=../../../MACAWS/Russian/newest_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 #    python check_metadata_macaws.py --directory=../../../MACAWS/Russian/Fall_2018/Normalized/ --master_file=../../../MACAWS/Russian/newest_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --master_assignment_file=../../../MACAWS/Assignment_and_Instructor_codes/assignment_codes_across_languages.xlsx
 
 
@@ -45,16 +44,26 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
         file_folders = clean_filename.split('/')
 
         filename_parts = clean_filename.split('- ')
-
-        if len(filename_parts) == 1:
+        print(filename_parts)
+        if len(filename_parts) < 11:
             filename_parts = clean_filename.split('/')
             student_name = re.sub(r'\.txt', r'', filename_parts[-1])
             student_name = re.sub(r'\s+', r' ', student_name)
+            if '-' in student_name:
+                student_name_more_parts = student_name.split('- ')
+                if len(student_name_more_parts) > 2:
+                    student_name = student_name_more_parts[1]
         else:
             student_name = re.sub(r'\.txt', r'', filename_parts[1])
             student_name = re.sub(r'\s+', r' ', student_name)
             if student_name[-1] == '-':
                 student_name = student_name[:-1]
+
+        if '-' in student_name:
+            student_name_more_parts = student_name.split('- ')
+            print(student_name_more_parts)
+            if len(student_name_more_parts) > 1:
+                student_name = student_name_more_parts[1]
 
         student_name = re.sub(r'_',r' ', student_name)
         student_name = re.sub(r'Essay.+',r'', student_name, re.I | re.DOTALL)
@@ -148,15 +157,26 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             problems_summary += 'No Instructor Metadata: ' + filename + ', ' + intructor_first_name + '\n'
 
         master_assignment['Folder name'] = master_assignment['Folder name'].str.lower()
-        assignment_info = master_assignment[master_assignment['Folder name'] == assignment.lower()]
-        if assignment_info.empty:
+        assignment_info1 = master_assignment[master_assignment['Folder name'] == assignment.lower()]
+        assignment_info2 = assignment_info1[assignment_info1['Course'] == course]
+        if assignment_info2.empty:
             print('***********************************************')
             print(colored('Unable to find assignment: ', 'red'))
             print(filename)
             print(assignment)
             print('***********************************************')
             found_all_metadata = False
-            problems_summary += 'No Assignment Metadata: ' + filename + '\n'
+            problems_summary += 'No Assignment Metadata: ' + filename + ', ' + assignment + '\n'
+
+        if assignment_info2.shape[0] > 1:
+            print('***********************************************')
+            print(colored('More than one row in assignment metadata for this assignment: ', 'red'))
+            print(filename)
+            print(assignment)
+            #print(file_folders)
+            print('***********************************************')
+            found_all_metadata = False
+            problems_summary += 'More than One Assignment Metadata Row: ' + filename + ', ' + assignment + '\n'
 
         if found_all_metadata:
             print('All metadata found for file ' + filename)
@@ -215,9 +235,22 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                 heritage_code = '1'
                 heritage_header = 'Yes'
 
-            assignment_code = assignment_info['Assignment Code'].to_string(index=False)
+            assignment_code = assignment_info2['Assignment Code'].to_string(index=False)
             assignment_code = assignment_code.strip()
+            assignment_code = assignment_code.zfill(4)
             assignment_code = re.sub(r'^NaN$', r'NA', assignment_code)
+
+            assignment_topic = assignment_info2['Assignment topic'].to_string(index=False)
+            assignment_topic = assignment_topic.strip()
+            assignment_topic = re.sub(r'^NaN$', r'NA', assignment_topic)
+
+            macrogenre = assignment_info2['Macrogenre'].to_string(index=False)
+            macrogenre = macrogenre.strip()
+            macrogenre = re.sub(r'^NaN$', r'NA', macrogenre)
+
+            macrogenre_code = assignment_info2['Macrogenre code'].to_string(index=False)
+            macrogenre_code = macrogenre_code.strip()
+            macrogenre_code = re.sub(r'^NaN$', r'NA', macrogenre_code)
 
             str_student_id = str(student_id)
             str_student_id = re.sub(r'\.0',r'',str_student_id)
@@ -231,6 +264,8 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             output_filename += language_code
             output_filename += '_'
             output_filename += heritage_code
+            output_filename += '_'
+            output_filename += macrogenre_code
             output_filename += '_'
             output_filename += assignment_code
             output_filename += '_'
@@ -326,6 +361,9 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                 print('<Course: ' + course + '>')
                 print('<L1: ' + first_languages + '>')
                 print('<Other Languages: ' + additional_languages + '>')
+                print('<Macro Genre: ' + macrogenre + '>')
+                print('<Assignment Topic: ' + assignment_topic + '>')
+                print('<Assignment Code: ' + assignment_code + '>')
                 print('<Assignment: ' + assignment + '>')
                 print('<Draft: ' + draft + '>')
                 print('<Student ID: ' + str_student_id + '>')
