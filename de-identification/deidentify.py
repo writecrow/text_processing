@@ -6,8 +6,8 @@
 # names of students and instructors are replaced with <name>
 #
 # Usage example:
-#   python deidentify.py --directory=../../../Spring\ 2018/files_with_headers/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring\ 2018.xlsx
-#   python deidentify.py --directory=../../../Fall\ 2018/files_with_headers/ --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall\ 2018.xlsx
+#   python deidentify.py --directory=../../../Spring\ 2018/files_with_headers/ --master_file=../../../Metadata/Spring\ 2018/Metadata_Spring_2018.csv
+#   python deidentify.py --directory=../../../Fall\ 2018/files_with_headers/ --master_file=../../../Metadata/Fall\ 2018/Metadata_Fall_2018.csv
 #   python deidentify.py --directory=../../../Fall\ 2017/files_with_headers/Fall\ 2017/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
 
 import argparse
@@ -126,12 +126,14 @@ def deidentify_file(filename, master, stops, overwrite=False):
                     names2remove.append(re.compile(before_regex + student_last_name + '\s?' + student_alternate_name+ '\s?' + student_first_name+ after_regex, re.I | re.DOTALL))
                     alternate_name_parts = student_alternate_name.split(' ')
                     for name_part in alternate_name_parts:
-                        if name_part.lower() not in stops:
-                            names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
-                            names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
-                        else:
-                            names2remove.append(re.compile('^' + name_part + after_regex , re.DOTALL))
-                            names2remove.append(re.compile(before_regex + name_part + after_regex , re.DOTALL))
+                        # initials are problematic
+                        if len(name_part) > 1:
+                            if name_part.lower() not in stops:
+                                names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
+                                names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
+                            else:
+                                names2remove.append(re.compile('^' + name_part + after_regex , re.DOTALL))
+                                names2remove.append(re.compile(before_regex + name_part + after_regex , re.DOTALL))
                 names2remove.append(re.compile('^' + instructor_first_name + '\s?' + instructor_last_name + after_regex, re.I| re.DOTALL))
                 names2remove.append(re.compile('^' + instructor_last_name + after_regex, re.I| re.DOTALL))
                 names2remove.append(re.compile(before_regex + instructor_first_name + '\s?' + instructor_last_name + after_regex, re.I| re.DOTALL))
