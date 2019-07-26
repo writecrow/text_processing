@@ -139,8 +139,9 @@ def convert_file(filename, overwrite=False):
     if '.txt' in filename:
         output_filename = filename
         if (not overwrite):
+            clean_filename = re.sub(r'\.\.[\\\/]', r'', filename)
             output_dir = 'converted'
-            output_filename = os.path.join(output_dir, filename)
+            output_filename = os.path.join(output_dir, clean_filename)
             output_directory = os.path.dirname(output_filename)
             if not os.path.exists(output_directory):
                 os.makedirs(output_directory)
