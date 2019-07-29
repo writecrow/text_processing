@@ -62,7 +62,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
 
         if '-' in student_name:
             student_name_more_parts = student_name.split('- ')
-            print(student_name_more_parts)
+            #print(student_name_more_parts)
             if len(student_name_more_parts) > 1:
                 student_name = student_name_more_parts[1]
 
@@ -198,6 +198,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
             first_languages = first_languages.strip()
             first_languages = re.sub(r'^NaN$', r'NA', first_languages)
             first_languages = re.sub(r',', r';', first_languages)
+            first_languages = re.sub(r'\sand\s', r';', first_languages)
 
             if ';' in first_languages:
                 language_code = 'MLT'
@@ -221,6 +222,8 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                 language_code = 'NAN'
 
             heritage_target_language = filtered_master2['heritage'].to_string(index=False)
+            heritage_target_language = heritage_target_language.strip()
+            #print(heritage_target_language)
             heritage_code = '0'
             heritage_header = 'No'
 
@@ -306,12 +309,12 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                 major = filtered_master2['major'].to_string(index=False)
                 major = major.strip()
                 major = major.title()
-                major = re.sub(r'^NaN$', r'NA', major)
+                major = re.sub(r'^Nan$', r'NA', major)
 
                 minor = filtered_master2['minor'].to_string(index=False)
                 minor = minor.strip()
                 minor = minor.title()
-                minor = re.sub(r'^NaN$', r'NA', minor)
+                minor = re.sub(r'^Nan$', r'NA', minor)
                 minor = re.sub(r'^-$', r'NA', minor)
 
 
@@ -325,6 +328,7 @@ def add_header_to_file(filename, master, master_instructor, master_assignment, o
                 additional_languages = additional_languages.strip()
                 additional_languages = re.sub(r'^NaN$', r'NA', additional_languages)
                 additional_languages = re.sub(r',', r';', additional_languages)
+                additional_languages = re.sub(r'\sand\s', r';', additional_languages)
 
                 instructor_code = instructor_info['instructor_code'].to_string(index=False)
                 instructor_code = instructor_code.strip()
