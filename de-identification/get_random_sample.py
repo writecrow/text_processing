@@ -24,7 +24,6 @@ parser.add_argument('--n_files', action="store", dest='n_files', default=1)
 args = parser.parse_args()
 
 def get_sample(filename):
-
     # create output filename with directory path
     cleaned_filename = re.sub(r'\.\.[\\\/]', r'', filename)
     output_directory = 'random_sample'
@@ -43,7 +42,7 @@ def get_sample_recursive(directory, n):
         for dir in dirpath:
             list_of_files[dirpath] = []
         for name in files:
-            if '.txt' in name:
+            if '.txt' in name and '_DF_' in name:
                 found_text_files = True
                 list_of_files[dirpath].append(name)
 
