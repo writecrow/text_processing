@@ -82,7 +82,7 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
 
                 # constants that come before and after the regex
                 before_regex = '(?<=\s|\.|\,|"|\()'
-                after_regex = '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?)'
+                after_regex = '(\b|(\r+)?\n|\s|\.|,|\)|:|!|\?|;|\-)'
 
                 # add different name combinations to list of names
                 # re.I flag is to ignore case
@@ -95,9 +95,9 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
                         consent_name_parts = student_consent_name.split(' ')
                         for name_part in consent_name_parts:
                             # initials are problematic
-                            if len(name_part) > 1 and name_part not in stops:
+                            if len(name_part) > 1:
                                 name_part = name_part.strip()
-                                if name_part != '' and name_part != ' ':
+                                if name_part != '' and name_part != ' ' and name_part.lower() not in stops:
                                     names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
                                     names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
 
@@ -111,9 +111,9 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
                     student_file_name_parts = student_file_name.split(' ')
                     for name_part in student_file_name_parts:
                         # initials are problematic
-                        if len(name_part) > 1 and name_part not in stops:
+                        if len(name_part) > 1:
                             name_part = name_part.strip()
-                            if name_part != '' and name_part != ' ':
+                            if name_part != '' and name_part != ' ' and name_part.lower() not in stops:
                                 names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
                                 names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
 
@@ -124,9 +124,9 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
                     student_survey_name_parts = student_survey_name.split(' ')
                     for name_part in student_survey_name_parts:
                         # initials are problematic
-                        if len(name_part) > 1 and name_part not in stops:
+                        if len(name_part) > 1:
                             name_part = name_part.strip()
-                            if name_part != '' and name_part != ' ':
+                            if name_part != '' and name_part != ' ' and name_part.lower() not in stops:
                                 names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
                                 names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
 
@@ -164,9 +164,9 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
 
                             instructor_full_name_parts = instructor_full_name.split(' ')
                             for name_part in instructor_full_name_parts:
-                                if len(name_part) > 1 and name_part not in stops:
+                                if len(name_part) > 1:
                                     name_part = name_part.strip()
-                                    if name_part != '' and name_part != ' ':
+                                    if name_part != '' and name_part != ' ' and name_part not in stops:
                                         names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
                                         names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
 
@@ -192,8 +192,11 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
                     cleaned_line = re.sub(r'(\r+)?\n', r'', new_line)
                     # remove any initials like H. and j.
                     cleaned_line = re.sub(r'\s[A-Za-z]\.', r'', cleaned_line)
+                    # remove name tags
                     cleaned_line = re.sub(r'<name>', r'', cleaned_line)
+                    # remove names
                     cleaned_line = re.sub(r'(([A-Z][a-z]+\s){1,3})?[A-Z][a-z]+', r'', cleaned_line)
+                    cleaned_line = re.sub(r'(([А-Я][а-я]+\s){1,3})?[А-Я][а-я]+', r'', cleaned_line)
                     # remove any extra spaces
                     cleaned_line = re.sub(r'\s', r'', cleaned_line)
                     cleaned_line = cleaned_line.strip()
@@ -287,12 +290,17 @@ if args.master_file and args.dir and args.master_instructor_file:
     elif '.csv' in args.master_instructor_file:
         master_instructor_data = pandas.read_csv(args.master_instructor_file)
 
-    stopwords = nltk.corpus.stopwords.words('portuguese')
+    language = args.target_language
+
+    if language == 'PORT_':
+        stopwords = nltk.corpus.stopwords.words('portuguese')
+    elif language == 'RSSS_':
+        stopwords = nltk.corpus.stopwords.words('russian')
     #print(stopwords)
 
     #print(master_instructor_data)
     #print(master_instructor_data.dtypes)
 
-    deidentify_recursive(args.dir, master_data, master_instructor_data, args.target_language, stopwords, args.overwrite)
+    deidentify_recursive(args.dir, master_data, master_instructor_data, language, stopwords, args.overwrite)
 else:
     print('You need to supply a valid master file and directory with textfiles')
