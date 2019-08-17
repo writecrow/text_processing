@@ -8,6 +8,8 @@
 # Usage example:
 #   python deidentify_macaws.py --directory=../headers/files_with_headers/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx
 #   python deidentify_macaws.py --directory=../headers/files_with_headers/ --master_file=../../../MACAWS/Russian/newest_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --language_to_process="RSSS_"
+#   python deidentify_macaws.py --directory=../../../MACAWS/Portuguese/files_with_headers/ --master_file=../../../MACAWS/Portuguese/metadata/master_metadata_spring2017_spring2019.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Portuguese.xlsx
+#   python deidentify_macaws.py --directory=../../../MACAWS/Russian/files_with_headers/ --master_file=../../../MACAWS/Russian/newest_master_meta.xlsx --master_instructor_file=../../../MACAWS/Assignment_and_Instructor_codes/Instructor_codes_Russian.csv --language_to_process="RSSS_"
 
 import argparse
 import nltk
@@ -166,7 +168,7 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
                             for name_part in instructor_full_name_parts:
                                 if len(name_part) > 1:
                                     name_part = name_part.strip()
-                                    if name_part != '' and name_part != ' ' and name_part not in stops:
+                                    if name_part != '' and name_part != ' ' and name_part.lower() not in stops:
                                         names2remove.append(re.compile('^' + name_part + after_regex , re.I| re.DOTALL))
                                         names2remove.append(re.compile(before_regex + name_part + after_regex , re.I| re.DOTALL))
 
@@ -197,6 +199,7 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
                     # remove names
                     cleaned_line = re.sub(r'(([A-Z][a-z]+\s){1,3})?[A-Z][a-z]+', r'', cleaned_line)
                     cleaned_line = re.sub(r'(([А-Я][а-я]+\s){1,3})?[А-Я][а-я]+', r'', cleaned_line)
+                    cleaned_line = re.sub(r'\-', r'', cleaned_line)
                     # remove any extra spaces
                     cleaned_line = re.sub(r'\s', r'', cleaned_line)
                     cleaned_line = cleaned_line.strip()
@@ -223,6 +226,9 @@ def deidentify_file(filename, master, master_instructor, language, stops, overwr
                                 new_line2 = re.sub(r'\[([A-Z][A-Z]\s?[0-9]{1,2})\]', r'', new_line)
                                 # replace emails with <email>
                                 new_line2 = re.sub(r'([A-Z]|[a-z]|[0-9]|\.)+@.+', r'<email>', new_line2)
+                                # replace phone numbers with <phone_number>
+                                # (520) 999-9999
+                                new_line2 = re.sub(r'\(?[0-9]{3}\)?\s?[0-9]{3}\-?[0-9]{4}', r'<phone_number>', new_line2)
                                 # check if line starts with identifying words
                                 matches = re.findall(r'^(professor|prof\.|teacher|instructor|m\.|mrs?\.|ms\.|dr\.|student|net\s?id|id)', new_line2, flags = re.IGNORECASE)
                                 # if the line does not start with any of the above
@@ -294,6 +300,7 @@ if args.master_file and args.dir and args.master_instructor_file:
 
     if language == 'PORT_':
         stopwords = nltk.corpus.stopwords.words('portuguese')
+        stopwords.append('mata')
     elif language == 'RSSS_':
         stopwords = nltk.corpus.stopwords.words('russian')
     #print(stopwords)
