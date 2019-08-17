@@ -7,6 +7,8 @@
 #
 # Usage example:
 #   python get_random_sample.py --directory=../../../Fall\ 2017/deidentified/ --n_files=2
+#   python get_random_sample.py --directory=deidentified_files/Spring\ 2018/ --n_files=2
+#   python get_random_sample.py --directory=../../../MACAWS/deidentified_files/ --n_files=2
 
 
 import argparse
