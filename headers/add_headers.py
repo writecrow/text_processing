@@ -7,6 +7,7 @@
 # Mac OS example:
 #    python add_headers.py --directory=Spring\ 2018/normalized/ --master_file=Metadata_Spring_2018_updated.csv
 #    python add_headers.py --directory=Fall\ 2018/normalized/ --master_file=Metadata_Fall_2018_updated.csv
+#    python add_headers.py --directory=../../../Fall\ 2017/normalized/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
 # Windows run with Anaconda Prompt example:
 #    python add_headers.py --directory="Fall 2018/normalized/" --master_file="Metadata_Fall_2018_updated.csv"
 
@@ -144,6 +145,11 @@ def add_header_to_file(filename, master, overwrite=False):
                 TOEFL_Reading = filtered_master2['TOEFL Reading'].to_string(index=False)
                 TOEFL_Writing = filtered_master2['TOEFL Writing'].to_string(index=False)
                 TOEFL_Speaking = filtered_master2['TOEFL Speaking'].to_string(index=False)
+                IELTS_Overall = filtered_master2['IELTS Overall'].to_string(index=False)
+                IELTS_Listening = filtered_master2['IELTS Listening'].to_string(index=False)
+                IELTS_Reading = filtered_master2['IELTS Reading'].to_string(index=False)
+                IELTS_Writing = filtered_master2['IELTS Writing'].to_string(index=False)
+                IELTS_Speaking = filtered_master2['IELTS Speaking'].to_string(index=False)
                 instructor = filtered_master2['Instructor Code'].to_string(index=False)
                 section = filtered_master2['Class Section'].to_string(index=False)
                 mode = filtered_master2['mode_of_course'].to_string(index=False)
@@ -156,6 +162,11 @@ def add_header_to_file(filename, master, overwrite=False):
                 TOEFL_Reading = TOEFL_Reading.strip()
                 TOEFL_Writing = TOEFL_Writing.strip()
                 TOEFL_Speaking = TOEFL_Speaking.strip()
+                IELTS_Overall = IELTS_Overall.strip()
+                IELTS_Listening = IELTS_Listening.strip()
+                IELTS_Reading = IELTS_Reading.strip()
+                IELTS_Writing = IELTS_Writing.strip()
+                IELTS_Speaking = IELTS_Speaking.strip()
                 instructor = instructor.strip()
                 section = section.strip()
                 mode = mode.strip()
@@ -167,6 +178,47 @@ def add_header_to_file(filename, master, overwrite=False):
                 TOEFL_Reading = re.sub(r'NaN', r'NA', TOEFL_Reading)
                 TOEFL_Writing = re.sub(r'NaN', r'NA', TOEFL_Writing)
                 TOEFL_Speaking = re.sub(r'NaN', r'NA', TOEFL_Speaking)
+                IELTS_Overall = re.sub(r'NaN', r'NA', IELTS_Overall)
+                IELTS_Listening = re.sub(r'NaN', r'NA', IELTS_Listening)
+                IELTS_Reading = re.sub(r'NaN', r'NA', IELTS_Reading)
+                IELTS_Writing = re.sub(r'NaN', r'NA', IELTS_Writing)
+                IELTS_Speaking = re.sub(r'NaN', r'NA', IELTS_Speaking)
+
+                proficiency_exam = ''
+                exam_total = ''
+                exam_reading = ''
+                exam_listening = ''
+                exam_speaking = ''
+                exam_writing = ''
+
+                if TOEFL_COMPI != 'NA':
+                    proficiency_exam = 'TOEFL'
+                    exam_total = TOEFL_COMPI
+                    exam_reading = TOEFL_Reading
+                    exam_listening = TOEFL_Listening
+                    exam_speaking = TOEFL_Speaking
+                    exam_writing = TOEFL_Writing
+                elif IELTS_Overall != 'NA':
+                    proficiency_exam = 'IELTS'
+                    exam_total = IELTS_Overall
+                    exam_reading = IELTS_Reading
+                    exam_listening = IELTS_Listening
+                    exam_speaking = IELTS_Speaking
+                    exam_writing = IELTS_Writing
+                elif TOEFL_COMPI != 'NA' and IELTS_Overall != 'NA':
+                    proficiency_exam = 'TOEFL;IELTS'
+                    exam_total = TOEFL_COMPI + ';' + IELTS_Overall
+                    exam_reading = TOEFL_Reading + ';' + IELTS_Reading
+                    exam_listening = TOEFL_Listening + ';' + IELTS_Listening
+                    exam_speaking = TOEFL_Speaking + ';' + IELTS_Speaking
+                    exam_writing = TOEFL_Writing + ';' + IELTS_Writing
+                else:
+                    proficiency_exam = 'NA'
+                    exam_total = 'NA'
+                    exam_reading = 'NA'
+                    exam_listening = 'NA'
+                    exam_speaking = 'NA'
+                    exam_writing = 'NA'
 
                 # write headers in
                 print("<ID: " + crow_id + ">", file = output_file)
@@ -183,11 +235,12 @@ def add_header_to_file(filename, master, overwrite=False):
                 print("<Course Semester: " + semester + ">" , file = output_file)
                 print("<College: " + college + ">", file = output_file)
                 print("<Program: " + program + ">", file = output_file)
-                print("<TOEFL total: " + TOEFL_COMPI + ">", file = output_file)
-                print("<TOEFL reading: " + TOEFL_Reading + ">", file = output_file)
-                print("<TOEFL listening: " + TOEFL_Listening + ">", file = output_file)
-                print("<TOEFL speaking: " + TOEFL_Speaking + ">", file = output_file)
-                print("<TOEFL writing: " + TOEFL_Writing + ">", file = output_file)
+                print("<Proficiency Exam: " + proficiency_exam +">", file = output_file)
+                print("<Exam total: " + exam_total + ">", file = output_file)
+                print("<Exam reading: " + exam_reading + ">", file = output_file)
+                print("<Exam listening: " + exam_listening + ">", file = output_file)
+                print("<Exam speaking: " + exam_speaking + ">", file = output_file)
+                print("<Exam writing: " + exam_writing + ">", file = output_file)
                 print("<Instructor: " + instructor + ">", file = output_file)
                 print("<Section: " + section + ">", file = output_file)
                 print("<End Header>", file = output_file)
