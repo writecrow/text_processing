@@ -66,6 +66,8 @@ def add_header_to_file(filename, master, overwrite=False):
 
             assignment = filename_parts2[4][:2]
             draft = filename_parts2[4][2:]
+            draft = re.sub('D', '', draft)
+
             country_code = filtered_master2['Birth Country Code'].to_string(index=False)
             country_code = country_code.strip()
             country_code = re.sub(r'NaN', r'NAN', country_code)
@@ -221,10 +223,10 @@ def add_header_to_file(filename, master, overwrite=False):
                     exam_writing = 'NA'
 
                 # write headers in
-                print("<ID: " + crow_id + ">", file = output_file)
+                print("<Student ID: " + crow_id + ">", file = output_file)
                 print("<Country: " + country + ">", file = output_file)
                 print("<Institution: " + institution + ">", file = output_file)
-                print("<Course: " + course + ">", file = output_file)
+                print("<Course: ENGL " + course + ">", file = output_file)
                 print("<Mode: " + mode + ">", file = output_file)
                 print("<Length: " + length + ">", file = output_file)
                 print("<Assignment: " + assignment + ">", file = output_file)
