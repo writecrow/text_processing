@@ -8,6 +8,9 @@
 #
 # Usage example:
 #    python process_metadata_one_semester.py --directory=../../../Metadata/Fall\ 2018/ --master_student_file=../../../Metadata/Master_Student_metadata_legacy.xlsx --instructor_codes_file=../../../Metadata/Instructor_Codes.xlsx
+# The directory is where the multiple excel files are stored. 
+# The master student file is the master spreadsheet with all metadata from previous semesters. 
+# The instructor codes file is the spreadsheet where the instructor codes (and names) are stored.
 # A new csv file with a similar name to the original spreadsheet
 # will be created.
 
