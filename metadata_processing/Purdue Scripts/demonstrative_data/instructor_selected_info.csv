@@ -1,0 +1,15 @@
+Semester,Subject,Course#,CRN,Instructor_First_Name,Instructor_Last_Name,Instructor_Code
+Fall 2016,ENGL,106-I,12345,Lastname1,Firstname1,2001
+Fall 2016,ENGL,106-I,22345,Lastname2,Firstname2,2002
+Fall 2016,ENGL,106-I,32345,Lastname3,Firstname3,2003
+Spring 2017,ENGL,106-I,42345,Lastname4,Firstname4,2004
+Spring 2017,ENGL,106-I,52345,Lastname5,Firstname5,2005
+Spring 2017,ENGL,106-I,62345,Lastname6,Firstname6,2006
+Summer 2017,ENGL,106-I,72345,Lastname7,Firstname7,2007
+Fall 2017,ENGL,106-I,82345,Lastname8,Firstname8,2008
+Fall 2017,ENGL,106-I,92345,Lastname9,Firstname9,2009
+Spring 2018,ENGL,106-Y,12346,Lastname10,Firstname10,2010
+Fall 2018,ENGL,106-R,22346,Lastname1,Firstname1,2001
+Fall 2018,ENGL,106,32346,Lastname2,Firstname2,2002
+Fall 2018,ENGL,106,42346,Lastname3,Firstname3,2003
+Spring 2019,ENGL,106-I,52346,Lastname4,Firstname4,2004

@@ -1,0 +1,15 @@
+Semester,Subject,Course#,CRN,Instructor_First_Name,Instructor_Last_Name,Instructor_Career_Account,Roster file name
+Fall 2016,ENGL,106-I,12345,Lastname1,Firstname1,lastname101,roster_filename1
+Fall 2016,ENGL,106-I,22345,Lastname2,Firstname2,lastname102,roster_filename2
+Fall 2016,ENGL,106-I,32345,Lastname3,Firstname3,lastname103,roster_filename3
+Spring 2017,ENGL,106-I,42345,Lastname4,Firstname4,lastname104,roster_filename4
+Spring 2017,ENGL,106-I,52345,Lastname5,Firstname5,lastname105,roster_filename5
+Spring 2017,ENGL,106-I,62345,Lastname6,Firstname6,lastname106,roster_filename6
+Summer 2017,ENGL,106-I,72345,Lastname7,Firstname7,lastname107,roster_filename7
+Fall 2017,ENGL,106-I,82345,Lastname8,Firstname8,lastname108,roster_filename8
+Fall 2017,ENGL,106-I,92345,Lastname9,Firstname9,lastname109,roster_filename9
+Spring 2018,ENGL,106-Y,12346,Lastname10,Firstname10,lastname110,roster_filename10
+Fall 2018,ENGL,106-R,22346,Lastname1,Firstname1,lastname101,roster_filename11
+Fall 2018,ENGL,106,32346,Lastname2,Firstname2,lastname102,roster_filename12
+Fall 2018,ENGL,106,42346,Lastname3,Firstname3,lastname103,roster_filename13
+Spring 2019,ENGL,106-I,52346,Lastname4,Firstname4,lastname104,roster_filename14
