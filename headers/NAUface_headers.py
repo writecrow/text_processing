@@ -27,6 +27,19 @@ parser.add_argument('--overwrite', action='store_true')
 parser.add_argument('--directory', action="store", dest='dir', default='')
 args = parser.parse_args()
 
+student_ids_dictionary = {}
+
+def add_id_to_dictionary(my_dictionary, my_key):
+    # function to add default value if key not in dictionary
+    # create a default value, which depends on how many keys are already in the dictionary
+    default_value = 10000 + len(my_dictionary)
+    # "create" the entry for that key, if the key exists, it assigns the current value of that key to the key
+    # if the key doesn't exist, it assigns the default_value to the key (which was not in the dictionary)
+    my_dictionary[my_key] = my_dictionary.get(my_key, default_value)
+    
+    # return the changed dictionary
+    return(my_dictionary)
+
 def process_file(filename):
 
     if ".txt" in filename:
@@ -39,47 +52,51 @@ def process_file(filename):
         print(filename_part2)
         
         filename_parts = filename_part2.split('_')
-        english_file = False
-        
-        if len(filename_parts) > 2:
-            english_file = True
-            
-        else:
-            
-        
-        assignment = filename_part2.split("_")[1]
-        shortened_filename = filename_part2.split("_")[0]
-
-        #assignment = re.sub(r"LA", r"Long Argument", assignment)
-        print("Assignment: ", assignment)
-
-        instructor = filename_part2[:2]
-        print("Instructor's name: ", instructor)
-
-        semester0 = filename_part2[2]
-        semester = re.sub(r"F", r"Fall", semester0)
-        semester = re.sub(r"S", r"Spring", semester0)
-        print("Semester: ", semester)
-
-        year = filename_part2[3:5]
-        year = re.sub(r"11", r"2011", year)
-        year = re.sub(r"12", r"2012", year)
-        print("Year: ", year)
-
-        language = filename_part2[5]
-        language = re.sub(r"A", r"Arabic", language)
-        print("Language: ", language)
-
-        student_ID = shortened_filename[-1]
-        
-        if shortened_filename[-2].isdigit():
-            student_ID = shortened_filename[-2] + shortened_filename[-1]
-        else:
-            pass
-            #student_ID = shortened_filename[-1]
-        print("Student ID: ", student_ID)
-        
         course_name = '105'
+        
+        # if it is an english file (With length of 3)
+        if len(filename_parts) > 2:
+            assignment = filename_part2.split("_")[1]
+            
+        else:
+            assignment = filename_part2.split("_")[1]
+            shortened_filename = filename_part2.split("_")[0]
+
+            #assignment = re.sub(r"LA", r"Long Argument", assignment)
+            print("Assignment: ", assignment)
+
+            instructor = filename_part2[:2]
+            print("Instructor's name: ", instructor)
+
+            semester0 = filename_part2[2]
+            semester = re.sub(r"F", r"Fall", semester0)
+            semester = re.sub(r"S", r"Spring", semester0)
+            print("Semester: ", semester)
+
+            year = filename_part2[3:5]
+            year = re.sub(r"11", r"2011", year)
+            year = re.sub(r"12", r"2012", year)
+            print("Year: ", year)
+
+            language = filename_part2[5]
+            language = re.sub(r"A", r"Arabic", language)
+            print("Language: ", language)
+
+            student_ID = shortened_filename[-1]
+            
+            # add student_ID to dictionary of ids if not there already
+            student_ids_dictionary = add_id_to_dictionary(student_ids_dictionary, student_ID)
+ 
+            crow_id = student_ids[student_ID]
+
+            if shortened_filename[-2].isdigit():
+                student_ID = shortened_filename[-2] + shortened_filename[-1]
+            else:
+                pass
+                #student_ID = shortened_filename[-1]
+            print("Student ID: ", student_ID, crow_id)
+
+            
 
         textfile = open(filename, 'r')
 
@@ -97,7 +114,7 @@ def process_file(filename):
         output_filename += "NA"
         output_filename += '_'
         output_filename += instructor
-        output_filename += student_ID
+        output_filename += crow_id
         output_filename += semester0
         output_filename += '_'
         output_filename += "NAU"
