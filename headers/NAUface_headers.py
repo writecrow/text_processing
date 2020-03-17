@@ -30,14 +30,28 @@ args = parser.parse_args()
 def process_file(filename):
 
     if ".txt" in filename:
-        filename_parts = filename.split('/')
-        filename_part2 = filename_parts[1].strip(".txt")
+        # current directory: Users/adriana
+        # directory=FACE/my_files/
+        # filename: Users/adriana/Desktop/FACE/my_files/textfile1.txt
+         # ['Users/adriana/Desktop/FACE/my_files/', 'textfile1.txt']
+        filename_clean = os.path.split(filename)
+        filename_part2 = filename_clean[1].strip(".txt")
         print(filename_part2)
+        
+        filename_parts = filename_part2.split('_')
+        english_file = False
+        
+        if len(filename_parts) > 2:
+            english_file = True
+            
+        else:
+            
+        
         assignment = filename_part2.split("_")[1]
         shortened_filename = filename_part2.split("_")[0]
 
         #assignment = re.sub(r"LA", r"Long Argument", assignment)
-        print("Assignment: ",assignment)
+        print("Assignment: ", assignment)
 
         instructor = filename_part2[:2]
         print("Instructor's name: ", instructor)
@@ -64,11 +78,13 @@ def process_file(filename):
             pass
             #student_ID = shortened_filename[-1]
         print("Student ID: ", student_ID)
+        
+        course_name = '105'
 
         textfile = open(filename, 'r')
 
         output_filename = ''
-        output_filename += "101"
+        output_filename += course_name
         output_filename += '_'
         output_filename += assignment
         output_filename += '_'
@@ -89,8 +105,9 @@ def process_file(filename):
         #output_filename = re.sub(r'\s', r'', output_filename)
         #output_filename = re.sub(r'__', r'_NA_', output_filename)
 
-
-        path = "files_with_headers/"
+        old_folder = filename_clean[1]
+        new_folder = "files_with_headers"
+        path = os.path.join(cwd, new_folder, course_name, 'English', )
 
         if not os.path.exists(path):
             os.makedirs(path)
@@ -135,6 +152,8 @@ def process_file(filename):
 
 def process_directory(directory_name):
     for filename in os.listdir(directory_name):
-        process_file(os.path.join(directory_name, filename))
+        # get relative path from home
+        cwd = os.getcwd()
+        process_file(os.path.join(cwd, directory_name, filename))
 
 process_directory(args.dir)
