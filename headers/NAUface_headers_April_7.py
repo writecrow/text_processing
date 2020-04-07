@@ -133,7 +133,7 @@ def process_file(filename):
         old_folder = filename_clean[1]
         new_folder = "files_with_headers"
         cwd = os.getcwd()
-        path = os.path.join(cwd, new_folder, course_name, 'English/')
+        path = os.path.join(cwd, new_folder, course_name, 'English')
 
         if not os.path.exists(path):
             os.makedirs(path)
@@ -177,9 +177,13 @@ def process_file(filename):
 
 
 def process_directory(directory_name):
-    for filename in os.listdir(directory_name):
-        # get relative path from home
+    for dirpath, dirnames, files in os.walk(directory_name):
         cwd = os.getcwd()
-        process_file(os.path.join(cwd, directory_name, filename))
+        for filename in files:
+            process_file(os.path.join(cwd, directory_name, filename))
+        # get relative path from home
+        
 
 process_directory(args.dir)
+
+
