@@ -21,11 +21,12 @@ def add_id_to_dictionary(my_dictionary, my_key):
     # "create" the entry for that key, if the key exists, it assigns the current value of that key to the key
     # if the key doesn't exist, it assigns the default_value to the key (which was not in the dictionary)
     my_dictionary[my_key] = my_dictionary.get(my_key, default_value)
-    
+
     # return the changed dictionary
     return(my_dictionary)
 
 def process_file(filename):
+    print(filename)
 
     if ".txt" in filename:
                 # filename: Users/adriana/Desktop/FACE/my_files/textfile1.txt
@@ -33,7 +34,7 @@ def process_file(filename):
         filename_clean = os.path.split(filename)
         filename_part2 = filename_clean[1].strip(".txt")
         print(filename_part2)
-        
+
         filename_parts = filename_part2.split('_')
         course_name = '105'
 
@@ -98,11 +99,11 @@ def process_file(filename):
             else:
                 pass
             print("Student_id:",student_ID)
-            
+
             # add student_ID to dictionary of ids if not there already
             add_id_to_dictionary(student_ids_dictionary, student_ID)
             print(student_ids_dictionary)
- 
+
             crow_id = student_ids_dictionary[student_ID]
 
             print("Student ID: ",crow_id)
@@ -133,12 +134,13 @@ def process_file(filename):
         old_folder = filename_clean[1]
         new_folder = "files_with_headers"
         cwd = os.getcwd()
-        path = os.path.join(cwd, new_folder, course_name, 'English')
+        path = os.path.join(cwd, new_folder, course_name, language)
+        print('New path: ', path)
 
         if not os.path.exists(path):
             os.makedirs(path)
 
-        output_file = open(path + output_filename, 'w')
+        output_file = open(os.path.join(path, output_filename), 'w')
 
         print("<Student ID: " + str(crow_id) + ">", file = output_file)
         print("<Country: " + "NA" + ">", file = output_file)
@@ -177,13 +179,12 @@ def process_file(filename):
 
 
 def process_directory(directory_name):
+    cwd = os.getcwd()
     for dirpath, dirnames, files in os.walk(directory_name):
-        cwd = os.getcwd()
+        print(dirpath, dirnames, files)
         for filename in files:
-            process_file(os.path.join(cwd, directory_name, filename))
+            process_file(os.path.join(cwd, dirpath, filename))
         # get relative path from home
-        
+
 
 process_directory(args.dir)
-
-
