@@ -26,87 +26,87 @@ def add_id_to_dictionary(my_dictionary, my_key):
     return(my_dictionary)
 
 def process_file(filename):
-    print(filename)
+    #print(filename)
 
     if ".txt" in filename:
                 # filename: Users/adriana/Desktop/FACE/my_files/textfile1.txt
          # ['Users/adriana/Desktop/FACE/my_files/', 'textfile1.txt']
         filename_clean = os.path.split(filename)
         filename_part2 = filename_clean[1].strip(".txt")
-        print(filename_part2)
+        #print(filename_part2)
 
         filename_parts = filename_part2.split('_')
         course_name = '105'
 
-        print(filename_parts)
+        #print(filename_parts)
 
     # if it is an english file (With length of 3)
         if len(filename_parts) > 2:
             assignment_code = filename_part2.split("_")[0]
-            print(assignment_code)
+            #print(assignment_code)
             student_ID = filename_part2.split("_")[2]
 
             assignment = re.sub(r"LA", r"Long Argument", assignment_code)
-            print("Assignment: ", assignment)
+            #print("Assignment: ", assignment)
 
             instructor = "NA"
-            print("Instructor's name: ", instructor)
+            #print("Instructor's name: ", instructor)
 
-            semester = "NA"
-            print("Semester: ", semester)
+            semester = "Spring"
+            #print("Semester: ", semester)
 
-            year = "NA"
-            print("Year: ", year)
+            year = "2009"
+            #print("Year: ", year)
 
             add_id_to_dictionary(student_ids_dictionary, student_ID)
             # print(student_ids_dictionary)
 
             crow_id = student_ids_dictionary[student_ID]
-            print("crow ID: ", crow_id)
+            #print("crow ID: ", crow_id)
 
             language = "English"
-            print("Language: ", language)
+            #print("Language: ", language)
 
 
         else:
             assignment_code = filename_part2.split("_")[1]
             shortened_filename = filename_part2.split("_")[0]
-            print(shortened_filename)
+            #print(shortened_filename)
 
             assignment = re.sub(r"LA", r"Long Argument", assignment_code)
-            print("Assignment: ", assignment)
+            #print("Assignment: ", assignment)
 
             instructor = filename_part2[:2]
-            print("Instructor's name: ", instructor)
+            #print("Instructor's name: ", instructor)
 
             semester0 = filename_part2[2]
             semester = re.sub(r"F", r"Fall", semester0)
             semester = re.sub(r"S", r"Spring", semester0)
-            print("Semester: ", semester)
+            #print("Semester: ", semester)
 
             year = filename_part2[3:5]
             year = re.sub(r"11", r"2011", year)
             year = re.sub(r"12", r"2012", year)
-            print("Year: ", year)
+            #print("Year: ", year)
 
             language = filename_part2[5]
             language = re.sub(r"A", r"Arabic", language)
-            print("Language: ", language)
+            #print("Language: ", language)
 
             student_ID = shortened_filename[-1]+instructor+semester0
             if shortened_filename[-2].isdigit():
                 student_ID = shortened_filename[-2] + shortened_filename[-1]+instructor+semester0
             else:
                 pass
-            print("Student_id:",student_ID)
+            #print("Student_id:",student_ID)
 
             # add student_ID to dictionary of ids if not there already
             add_id_to_dictionary(student_ids_dictionary, student_ID)
-            print(student_ids_dictionary)
+            #print(student_ids_dictionary)
 
             crow_id = student_ids_dictionary[student_ID]
 
-            print("Student ID: ",crow_id)
+            #print("Student ID: ",crow_id)
 
 
         textfile = open(filename, 'r')
@@ -135,7 +135,7 @@ def process_file(filename):
         new_folder = "files_with_headers"
         cwd = os.getcwd()
         path = os.path.join(cwd, new_folder, course_name, language)
-        print('New path: ', path)
+        #print('New path: ', path)
 
         if not os.path.exists(path):
             os.makedirs(path)
@@ -176,12 +176,12 @@ def process_file(filename):
 
         output_file.close()
         textfile.close()
-
+        print("original: ",filename, "-", "new: ",output_filename)
 
 def process_directory(directory_name):
     cwd = os.getcwd()
     for dirpath, dirnames, files in os.walk(directory_name):
-        print(dirpath, dirnames, files)
+        #print(dirpath, dirnames, files)
         for filename in files:
             process_file(os.path.join(cwd, dirpath, filename))
         # get relative path from home
