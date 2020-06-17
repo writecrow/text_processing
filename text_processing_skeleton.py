@@ -68,8 +68,10 @@ def process_recursive(directory, master, stops, overwrite=False):
     if not found_text_files:
         print('No text files found in the directory.')
 
-
+# check if a directory as entered as an argument when calling the script
 if args.dir:
+    # if there's a directory provided, call recursive processing function
     process_recursive(args.dir, master_data, stops, args.overwrite)
 else:
-    print('You need to supply a directory with text files')
+    # if there's no argument for a directory, let the user know
+    print('You need to supply a directory with text files. Use --directory= after the script name')
