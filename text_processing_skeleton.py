@@ -1,0 +1,75 @@
+#!/usr/local/bin/python3
+# -*- coding: utf-8 -*-
+
+# DESCRIPTION: this is a generic text processing script that can be used as a
+# template for text processing
+#
+# Usage example:
+#   python text_processing_skeleton.py --directory=files_with_headers
+
+import re
+import sys
+
+# Define the way we retrieve arguments sent to the script.
+parser = argparse.ArgumentParser(description='De-identify Individual Textfile')
+parser.add_argument('--overwrite', action='store_true')
+parser.add_argument('--directory', action="store", dest='dir', default='')
+args = parser.parse_args()
+
+# individual text processing function that is called by the recursive function
+def process_file(filename, master, stops, overwrite=False):
+    # only process text files
+    found_text_files = False
+    if '.txt' in filename:
+        found_text_files = True
+
+        # create output filename with directory path
+        # first eliminate any relative path dots from filename
+        # so that files are saved relative to current directory only
+        cleaned_filename = re.sub(r'\.\.[\\\/]', r'', filename)
+        # create a new folder
+        output_directory = 'processed'
+        # join the new folder with the folders already in the filename
+        output_filename = os.path.join(output_directory, cleaned_filename2)
+        # get the directory path (without the actual filename, just folders)
+        directory = os.path.dirname(output_filename)
+        # check if the folder structure already exists
+        if not os.path.exists(directory):
+            # create folder structure if it does not exist
+            os.makedirs(directory)
+
+        # open original textfile and new output file
+        original_textfile = open(filename, 'r')
+        output_file = open(output_filename, 'w')
+
+        # close original textfile and new output file
+        original_textfile.close()
+        output_file.close()
+
+    return(found_text_files)
+
+# recursive function that calls in the individual process file function for
+# every file in the directory passed as a argument
+def process_recursive(directory, master, stops, overwrite=False):
+    # create control for text files, to check if there are any text files
+    # in the give directory
+    found_text_files = False
+    # walk the subfolders in the given directory
+    for dirpath, dirnames, files in os.walk(directory):
+        # for every file in all the subfolders
+        for name in files:
+            # call individual text processing function that returns a boolean
+            is_this_a_text_file = process_file(os.path.join(dirpath, name), master, stops, overwrite)
+            # if is_this_a_text_file is True that means a text file was found
+            # and processed
+            if is_this_a_text_file:
+                found_text_files = True
+    # notify the user that no text files were found in the given directory
+    if not found_text_files:
+        print('No text files found in the directory.')
+
+
+if args.dir:
+    process_recursive(args.dir, master_data, stops, args.overwrite)
+else:
+    print('You need to supply a directory with text files')
