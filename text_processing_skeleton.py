@@ -11,7 +11,7 @@ import re
 import sys
 
 # Define the way we retrieve arguments sent to the script.
-parser = argparse.ArgumentParser(description='De-identify Individual Textfile')
+parser = argparse.ArgumentParser(description='Process Textfiles in a Directory')
 parser.add_argument('--overwrite', action='store_true')
 parser.add_argument('--directory', action="store", dest='dir', default='')
 args = parser.parse_args()
