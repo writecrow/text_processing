@@ -108,7 +108,7 @@ def deidentify_file(filename, master, stops, overwrite=False):
                 else:
                     names2remove.append(re.compile('^' + student_first_name + after_regex, re.DOTALL))
                     names2remove.append(re.compile(before_regex + student_first_name + after_regex, re.DOTALL))
-
+                # ignore case only if students' alternate name(if it exists) not an English word
                 if student_alternate_name != '':
                     if student_alternate_name.lower() not in stops:
                         names2remove.append(re.compile('^' + student_alternate_name + after_regex, re.I| re.DOTALL))
@@ -116,7 +116,7 @@ def deidentify_file(filename, master, stops, overwrite=False):
                     else:
                         names2remove.append(re.compile('^' + student_alternate_name + after_regex, re.DOTALL))
                         names2remove.append(re.compile(before_regex + student_alternate_name + after_regex, re.DOTALL))
-
+                    # add different name combinations with alternate name to the list of names
                     names2remove.append(re.compile('^' + student_alternate_name + '\s?' + student_last_name + after_regex, re.I | re.DOTALL))
                     names2remove.append(re.compile('^' + student_alternate_name + '\s?' + student_first_name + after_regex, re.I | re.DOTALL))
                     names2remove.append(re.compile('^' + student_last_name + '\s?' + student_alternate_name + '\s?' + student_first_name + after_regex, re.I | re.DOTALL))
