@@ -66,7 +66,7 @@ def process_file(filename):
             #print("crow ID: ", crow_id)
 
             language = "English"
-            country = "United States"
+            country = "USA"
             country_code = "USA"
             #print("Language: ", language)
 
@@ -91,12 +91,18 @@ def process_file(filename):
         
             #print("Instructor's name: ", instructor)
 
-            semester0 = filename_part2[2]
-            semester = re.sub(r"F", r"Fall", semester0)
-            semester = re.sub(r"S", r"Spring", semester0)
-            #print("Semester: ", semester)
-
+            semester = filename_part2[2]
+            #replacements = [("F", "Fall"), ("S", "Spring")]
+            #for pat, repl in replacements:
+                #semester = re.sub(pat, repl, semester0)
+            semester = re.sub(r"S", r"Spring", semester)
+            semester = re.sub(r"F", r"Fall", semester)
+            
+            #print("Semester letter: ", semester0)
+            print("Semester: ", semester)
+            
             year = filename_part2[3:5]
+            year = re.sub(r"10", r"2010", year)
             year = re.sub(r"11", r"2011", year)
             year = re.sub(r"12", r"2012", year)
             #print("Year: ", year)
@@ -108,9 +114,9 @@ def process_file(filename):
             country_code = "NAN"
             #print("Language: ", language)
 
-            student_ID = shortened_filename[-1]+instructor+semester0
+            student_ID = shortened_filename[-1]+shortened_filename[-2] +instructor+shortened_filename[2]
             if shortened_filename[-2].isdigit():
-                student_ID = shortened_filename[-2] + shortened_filename[-1]+instructor+semester0
+                student_ID = shortened_filename[-2] + shortened_filename[-1]+instructor+shortened_filename[2]
             else:
                 pass
             #print("Student_id:",student_ID)
