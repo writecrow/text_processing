@@ -34,13 +34,13 @@ def print_headers(filename, other_files):
 
     # print header labels just for first file
     if not other_files:
-        labels = re.findall(r"<[A-Za-z\s]+", headers)
+        labels = re.findall(r"<[A-Za-z\s\-0-9]+", headers)
         label_line = '\t'.join(labels)
         label_line = re.sub(r"<", "", label_line)
         print(label_line)
 
     # remove label of header to keep only value after :
-    headers = re.sub(r"<[A-Za-z\s]+:", "", headers)
+    headers = re.sub(r"<[A-Za-z\s\-0-9]+: ", "", headers)
 
     # replace the closing > with a tab for tab separated value
     headers = re.sub(">", "\t", headers)
