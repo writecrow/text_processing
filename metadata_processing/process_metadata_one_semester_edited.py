@@ -121,8 +121,10 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
     new_combined_data = pandas.concat(output_frames, sort=False)
 
     if len(output_frames) > 0:
+        #print(master_student_data)
         # get last (highest) student code from master student file
         last_student_code = master_student_data['Crow ID'].max()
+        last_section_code = master_student_data['Class Section'].max()
 
         # very important step, so student ID works
         new_combined_data = new_combined_data.reset_index(drop = True)
@@ -139,6 +141,7 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
         new_combined_data3[['Crow ID']] = new_combined_data3[['Crow ID']].astype(int)
 
         df = new_combined_data3
+        print(df)
         df['Crow_ID'] = numpy.where(df['Crow ID']==0,  df['New Crow ID'], df['Crow ID'])
 
         # Delete the extra crow ID columns from the dataframe
@@ -147,9 +150,32 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
         df = df.rename(index=str, columns={'Crow_ID': 'Crow ID'})
 
         df = df.drop_duplicates()
-        df.to_csv(output_filename, index = False)
 
-    
+        df['course_section'] = df['Catalog Nbr'].astype(str) + df['Class Section_x'].astype(str)
+
+        print(df['course_section'])
+        
+        section_dictionary = {}
+        
+        for item in df['course_section']:
+            if item not in section_dictionary:
+                section_dictionary[item] = last_section_code +1
+                last_section_code +=1
+
+        print(section_dictionary)
+        df = df.replace({"course_section": section_dictionary})
+
+        df.rename(columns={'course_section':'Class Section'}, inplace=True)
+
+        df = df.drop("Class Section_x", axis=1)
+        df = df.drop("Class Section_y", axis=1)
+
+        print(df)
+
+        df.to_csv(output_filename, index = False)
+        
+
+
         df = df.rename(columns = {"Acad Level": "year_in_school"})
         #df = df.rename(columns = {"IELTS Overall Band Score": "IELTS Overall"})
     
@@ -180,14 +206,14 @@ if args.master_student and args.instructor_codes:
         output_filename += '_processed.csv'
         output_filename = re.sub(r'_+', r'_', output_filename)
         output_frames = combine_recursive(args.dir)
-        process_new_data(output_frames, master_student_data[['Registrar ID', 'Crow ID']], master_student_data, instructor_codes, output_filename)
+        process_new_data(output_frames, master_student_data[['Registrar ID', 'Crow ID', 'Class Section']], master_student_data, instructor_codes, output_filename)
 
     elif args.file and os.path.isfile(args.file):
         output_filename = re.sub(r'.+\/|.+\\|\.xlsx?', r'', args.file)
         output_filename += '_processed.csv'
         output_filename = re.sub(r'_+', r'_', output_filename)
         output_frames = combine_tabs(args.file)
-        process_new_data(output_frames, last_student_code, master_student_data[['Registrar ID', 'Crow ID']], instructor_codes)
+        process_new_data(output_frames, last_student_code, master_student_data[['Registrar ID', 'Crow ID', 'Class Section']], instructor_codes)
     else:
         print('You need to supply a valid directory or filename')
 else:
