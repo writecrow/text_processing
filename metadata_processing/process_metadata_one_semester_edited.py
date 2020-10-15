@@ -152,15 +152,6 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
         df['course_section'] = df['Catalog Nbr'].astype(str) + df['Class Section'].astype(str)
 
         print(df['course_section'])
-        
-        section_dictionary = {}
-        
-        for item in df['course_section']:
-            if item not in section_dictionary:
-                section_dictionary[item] = last_section_code +1
-                last_section_code +=1
-
-        print(section_dictionary)
 
     
         df = df.rename(columns = {"Acad Level": "year_in_school"})
