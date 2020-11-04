@@ -37,7 +37,7 @@ def print_headers(filename, other_files):
         labels = re.findall(r"<[A-Za-z\s\-0-9]+", headers)
         label_line = '\t'.join(labels)
         label_line = re.sub(r"<", "", label_line)
-        print(label_line)
+        print("filename\t" + label_line)
 
     # remove label of header to keep only value after :
     headers = re.sub(r"<[A-Za-z\s\-0-9]+: ", "", headers)
@@ -49,7 +49,7 @@ def print_headers(filename, other_files):
     headers = re.sub("\r?\n", "", headers)
 
     # print line with headers separated by tab
-    print(headers)
+    print(filename + "\t" + headers)
 
     # close file
     input_file.close()
