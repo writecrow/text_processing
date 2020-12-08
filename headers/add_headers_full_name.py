@@ -39,7 +39,7 @@ def add_header_to_file(filename, master, overwrite=False):
         student_filename = " ".join(student_name_parts)
         #print(student_name_parts)
 
-        new = master["Name"].str.split(",", n = 1, expand = True)
+        new = master["Filename"].str.split(",", n = 1, expand = True)
   
         # making separate first name column from new data frame
         master["First Name"]= new[1]
@@ -48,10 +48,10 @@ def add_header_to_file(filename, master, overwrite=False):
         master["Last Name"]= new[0]
         
         # combine First Name and Last Name
-        master['Filename'] = master['First Name'].str.cat(master['Last Name'],sep=" ")
+        master['Filename combined'] = master['First Name'].str.cat(master['Last Name'],sep=" ")
 
         
-        filtered_master = master[master['Filename'] == student_filename]
+        filtered_master = master[master['Filename combined'] == student_filename]
         if filtered_master.empty:
             print('***********************************************')
             print('Unable to find metadata for this file: ')
@@ -157,7 +157,7 @@ def add_header_to_file(filename, master, overwrite=False):
                 TOEFL_Reading = filtered_master['TOEFL Reading'].to_string(index=False)
                 TOEFL_Writing = filtered_master['TOEFL Writing'].to_string(index=False)
                 TOEFL_Speaking = filtered_master['TOEFL Speaking'].to_string(index=False)
-                IELTS_Overall = filtered_master['IELTS Overall'].to_string(index=False)
+                IELTS_Overall = filtered_master['IELTS Overall Band Score'].to_string(index=False)
                 IELTS_Listening = filtered_master['IELTS Listening'].to_string(index=False)
                 IELTS_Reading = filtered_master['IELTS Reading'].to_string(index=False)
                 IELTS_Writing = filtered_master['IELTS Writing'].to_string(index=False)
@@ -166,6 +166,8 @@ def add_header_to_file(filename, master, overwrite=False):
                 section = filtered_master['Class Section'].to_string(index=False)
                 mode = filtered_master['mode_of_course'].to_string(index=False)
                 length = filtered_master['length_of_course'].to_string(index=False)
+                L1 = filtered_master['L1'].to_string(index=False)
+                heritage_spanish = filtered_master['Heritage Spanish'].to_string(index=False)
 
                 college = college.strip()
                 program = program.strip()
@@ -183,6 +185,8 @@ def add_header_to_file(filename, master, overwrite=False):
                 section = section.strip()
                 mode = mode.strip()
                 length = length.strip()
+                L1 = L1.strip()
+                heritage_spanish = heritage_spanish.strip()
 
                 country = re.sub(r'NaN', r'NA', country)
                 TOEFL_COMPI = re.sub(r'NaN', r'NA', TOEFL_COMPI)
@@ -195,6 +199,7 @@ def add_header_to_file(filename, master, overwrite=False):
                 IELTS_Reading = re.sub(r'NaN', r'NA', IELTS_Reading)
                 IELTS_Writing = re.sub(r'NaN', r'NA', IELTS_Writing)
                 IELTS_Speaking = re.sub(r'NaN', r'NA', IELTS_Speaking)
+                L1 = re.sub(r'NaN', r'NA', L1)
 
                 proficiency_exam = ''
                 exam_total = ''
@@ -235,6 +240,8 @@ def add_header_to_file(filename, master, overwrite=False):
                 # write headers in
                 print("<Student ID: " + crow_id + ">", file = output_file)
                 print("<Country: " + country + ">", file = output_file)
+                print("<L1: " + L1 + ">", file = output_file)
+                print("<Heritage Spanish Speaker: " + heritage_spanish.capitalize() + ">", file = output_file)
                 print("<Institution: " + institution + ">", file = output_file)
                 print("<Course: ENGL " + course + ">", file = output_file)
                 print("<Mode: " + mode + ">", file = output_file)

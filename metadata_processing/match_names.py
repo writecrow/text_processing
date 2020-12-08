@@ -58,14 +58,16 @@ for name in list_of_names:
     if name not in student_filenames:
         if name not in student_not_found:
             student_not_found.append(name)
-            print("These student names are in the spreadsheet but not in the filenames:")                
-            print('\n'.join(map(str, student_not_found)))
-            print("***************")     
+print("These student names are in the spreadsheet but NOT in the filenames:")                
+print('\n'.join(map(str, student_not_found)))
+print("***************")                 
 
+student_filenames_not_found = []
 for student_filename in student_filenames:
     if student_filename not in list_of_names:
-        print("These student names are NOT in the spreadsheet but are in the filenames:")
-        print(student_filename)
+        student_filenames_not_found.append(student_filename)
+print("These student names are NOT in the spreadsheet but are in the filenames:")
+print('\n'.join(map(str, student_filenames_not_found)))
 
 
 
