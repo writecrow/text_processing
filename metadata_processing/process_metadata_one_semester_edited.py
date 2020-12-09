@@ -105,8 +105,6 @@ def combine_tabs(filename):
 
                 else:
                     new_row = this_student_data.iloc[[0]]
-                    new_row["Major"] = major[:-2].replace(",", " ")
-                    new_row["College"] = college[:-2].replace(",", " ")
                 new_frames.append(new_row)
 
             return(new_frames)
