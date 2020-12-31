@@ -130,12 +130,11 @@ def add_header_to_file(filename, master, overwrite=False):
             output_filename += crow_id
             output_filename += '_'
             output_filename += institution_code
-            if "cues" in filtered_master['institution']:
+            if "cues" in str(filtered_master['institution']):
                 output_filename += "_c"
             output_filename += '.txt'
             output_filename = re.sub(r'\s', r'', output_filename)
             output_filename = re.sub(r'__', r'_NA_', output_filename)
-
             if 'Series' not in output_filename:
                 term = filtered_master['term'].to_string(index=False)
                 term = term.strip()
