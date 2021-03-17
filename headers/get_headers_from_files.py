@@ -40,16 +40,19 @@ def print_headers(filename, other_files):
         print("filename\t" + label_line)
 
     # remove label of header to keep only value after :
-    headers = re.sub(r"<[A-Za-z\s\-0-9]+: ", "", headers)
+    headers = re.sub(r"<[A-Za-z\s\-0-9]+:\s", "", headers)
 
     # replace the closing > with a tab for tab separated value
     headers = re.sub(">", "\t", headers)
 
     # remove line breaks
-    headers = re.sub("\r?\n", "", headers)
+    headers = re.sub(r"\r?\n", "", headers)
+
+    # don't include folder names in filename to print out
+    just_filename = os.path.split(filename)[1]
 
     # print line with headers separated by tab
-    print(filename + "\t" + headers)
+    print(just_filename + "\t" + headers)
 
     # close file
     input_file.close()
