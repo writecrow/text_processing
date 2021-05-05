@@ -1,0 +1,13 @@
+file_1:
+  anchor:
+    column_name:
+      - Name
+    tab: FALSE
+  tab: "instructor_code"
+
+file_2:
+  anchor:
+    column_name:
+      - Name
+    tab: FALSE
+  tab: NULL
