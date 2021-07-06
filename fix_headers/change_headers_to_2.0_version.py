@@ -74,7 +74,10 @@ def fix_headers(filename, overwrite=False):
         print(list_of_headers[19], file=output_file)
         print("</Student>", file=output_file)
         print("", file=output_file)
-        print(list_of_headers[22], file=output_file)
+        if "End Header" in list_of_headers[22]:
+             print(list_of_headers[22], file=output_file)
+        elif: 
+            print("End Header", file=output_file)
         print("", file=output_file)
         print(text_body, file=output_file)
 
