@@ -53,7 +53,10 @@ def fix_headers(filename, overwrite=False):
         print(list_of_headers[10], file=output_file)
         print(list_of_headers[11], file=output_file)
         print(list_of_headers[20], file=output_file)
-        print(list_of_headers[21], file=output_file)
+        if "Section" in list_of_headers[21]:
+           print(list_of_headers[21], file=output_file)
+        elif:
+            print("Section: NA", file=output_file)
         print("</Text>", file=output_file)
         print("", file=output_file)
         print("<Student>", file=output_file)
