@@ -53,19 +53,19 @@ def combine_tabs(filename):
             #print(this_tab.columns)
             # comment: add student ids to list of studdent ids
 
-            for element in this_tab["Registrar ID"].tolist():
+            for element in this_tab["ID"].tolist():
                 studentid.append(element)
             print("instructor tab: ", len(studentid))
 
             # comment: get the same students from the master tab
 
-            filterid = mastertab.loc[mastertab["Registrar ID"].isin(studentid)]
-            #print(filterid["Registrar ID"])
+            filterid = mastertab.loc[mastertab["ID"].isin(studentid)]
+            #print(filterid["ID"])
             #print (len(studentid[,]))
-            #print ("mastertab: ", len (filterid["Registrar ID"].tolist()))
+            #print ("mastertab: ", len (filterid["ID"].tolist()))
 
             # comment: make sure tab and master are the same
-            if len(studentid) == len(filterid["Registrar ID"].tolist()):
+            if len(studentid) == len(filterid["ID"].tolist()):
 
                 #print("they are the same")
                 # comment: add this tab to frames list to combine data
@@ -79,14 +79,14 @@ def combine_tabs(filename):
             #print(combined_data)
 
             # comment: get list of student IDs
-            allstudents = combined_data["Registrar ID"].unique()
+            allstudents = combined_data["ID"].unique()
             print("There are " + str(len(allstudents)) + " students to process.")
             new_frames = []
             # comment: for every student id
             for student in allstudents:
                 print("Checking student rows.")
 
-                this_student_data = combined_data.loc[combined_data["Registrar ID"] == student]
+                this_student_data = combined_data.loc[combined_data["ID"] == student]
 
                 #print(this_student_data)
                 #print("*****")
