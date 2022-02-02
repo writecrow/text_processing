@@ -46,11 +46,14 @@ def process_file(filename, overwrite=False):
         output_file = open(output_filename, 'w')
 
         file_contents = original_textfile.read()
+        #print (file_contents[0])
 
-        if file_contents[0] != "<" and file_contents[1] == "<":
-            output_file.write(file_contents[1:])
+        if file_contents[0] != "<":
+            output_file.write(file_contents[3:])
+            #print ("processing with BOM")
         elif file_contents[0] == "<":
             output_file.write(file_contents[0:])
+            #print ("processing file without BOM")
         else:
             print("Couldn't process file" + filename)
 
