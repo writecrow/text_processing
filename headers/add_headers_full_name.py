@@ -26,7 +26,6 @@ args = parser.parse_args()
 
 
 def get_metadata_for_file(filepath, master):
-    print(filepath)
     # Convert the master spreadsheet to an easily traversable dictionary.
     data = master.to_dict(orient="records")
     normed_path = os.path.normpath(filepath)
