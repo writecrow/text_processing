@@ -26,6 +26,7 @@ args = parser.parse_args()
 
 
 def get_metadata_for_file(filepath, master):
+    print(filepath)
     # Convert the master spreadsheet to an easily traversable dictionary.
     data = master.to_dict(orient="records")
     normed_path = os.path.normpath(filepath)
@@ -40,11 +41,21 @@ def get_metadata_for_file(filepath, master):
     # Loop through rows in the master spreadsheet.
     for row in data:
         fullname = row['First Name'] + ' ' + row['Last Name']
+        short_first_name = row['First Name'].split(' ')
+        short_last_name = row['Last Name'].split(' ')
+        if short_last_name[-1]:
+            short_last_name = short_last_name[-1]
+        if short_first_name[0]:
+            short_first_name = short_first_name[0]
+        short_fullname = short_first_name + ' ' + short_last_name
         # If there is an explicit filename segment in this row, see if it is contained in the file's name.
         if str(row['Filename']) in filename:
             matches = matches + 1
             target_row = row
         elif fullname in filename:
+            matches = matches + 1
+            target_row = row
+        elif short_fullname in filename:
             matches = matches + 1
             target_row = row
         elif row['Last Name'] in filename:
@@ -78,10 +89,9 @@ def add_header_to_file(filepath, metadata):
     not_windows_filename = re.sub(r'\\', r'/', filepath)
     clean_filename = re.sub(r'\.\.\/', r'', not_windows_filename)
     filename_parts = clean_filename.split('/')
-
     course = clean(metadata['Catalog Nbr'])
-    assignment = filename_parts[4][:2]
-    draft = filename_parts[4][2:]
+    assignment = filename_parts[-2][:2]
+    draft = filename_parts[-2][2:]
     draft = re.sub('D', '', draft)
     country_code = clean(metadata['Birth Country Code'])
     year_in_school = clean(metadata['Acad Level'])
