@@ -17,58 +17,72 @@ import pandas
 
 # Define the way we retrieve arguments sent to the script.
 parser = argparse.ArgumentParser(description='Add Headers to Individual Textfile')
-parser.add_argument('--overwrite', action='store_true')
 parser.add_argument('--directory', action="store", dest='dir', default='')
 parser.add_argument('--master_file', action="store", dest='master_file', default='')
 args = parser.parse_args()
 
 
-def add_header_to_file(filename, master, overwrite=False):
-    found_text_files = False
-    if '.txt' in filename:
-        found_text_files = True
-        print(filename)
-        output_filename = filename
+def get_metadata_for_file(filepath, master):
+    # Convert the master spreadsheet to an easily traversable dictionary.
+    data = master.to_dict(orient="records")
+    normed_path = os.path.normpath(filepath)
+    # splits the parts of the path across platforms
+    filepath_parts = normed_path.split(os.sep)
+    # The filename is the final segment of a split path.
+    filename = filepath_parts[-1]
+    # Check two different methods to discover the metadata: explicit filename, or student name concatenated.
+    matches = 0
+    possible_matches = []
+    target_row = {}
+    # Loop through rows in the master spreadsheet.
+    for row in data:
+        fullname = row['First Name'] + ' ' + row['Last Name']
+        # If there is an explicit filename segment in this row, see if it is contained in the file's name.
+        if str(row['Filename']) in filename:
+            matches = matches + 1
+            target_row = row
+        elif fullname in filename:
+            matches = matches + 1
+            target_row = row
+        elif row['Last Name'] in filename:
+            possible_matches.append(
+                row['First Name'] + ' ' + row['Last Name'])
+    # Report the results of our search.
+    if matches == 0:
+        print('Unable to find any metadata for file: ' + filename)
+        if possible_matches:
+            print('    Possible match: ' + ",".join(possible_matches))
+        return False
+    elif matches > 1:
+        print('More than one row of metadata matches this file: ' + filename)
+        return False
+    else:
+        # Success! We found a single metadata row corresponding to this file.
+        return True
 
-        # Open the file so we can guess its encoding.
-        textfile = open(filename, 'r')
-        filename_parts = filename.split('- ')
-        student_name = re.sub(r'\.txt', r'', filename_parts[1])
-        student_name = re.sub(r'\s+', r' ', student_name)
-        if student_name[-1] == '-':
-            student_name = student_name[:-1]
-        student_name_parts = student_name.split()
-        if len(student_name_parts) != 2:
-            print('***********************************************')
-            print('File has student name with more than two names: ' + filename)
-            print(student_name_parts)
 
-        filtered_master1 = master[master['Last Name'] == student_name_parts[-1]]
-        filtered_master2 = filtered_master1[filtered_master1['First Name'] == student_name_parts[0]]
-        if filtered_master2.empty:
-            print('***********************************************')
-            print('Unable to find metadata for this file: ')
-            print(filename)
-            print(student_name_parts)
-
-        if filtered_master2.shape[0] > 1:
-            print('***********************************************')
-            print('More than one row in metadata for this file: ')
-            print(filename)
-            print(student_name_parts)
-
-        textfile.close()
-    return(found_text_files)
-
-def add_headers_recursive(directory, master, overwrite=False):
-    found_text_files = False
+def check_metadata_recursive(directory, master):
+    total_files = 0
+    files_with_metadata = 0
+    files_without_metadata = 0
     for dirpath, dirnames, files in os.walk(directory):
         for name in files:
-            is_this_a_text_file = add_header_to_file(os.path.join(dirpath, name), master, overwrite)
-            if is_this_a_text_file:
-                found_text_files = True
-    if not found_text_files:
-        print('No text files found in the directory.')
+            # Skip non text files.
+            if '.txt' not in name:
+                continue
+            total_files = total_files + 1
+            filepath = os.path.join(dirpath, name)
+            # Retrieve metadata for this file from the spreadsheet.
+            metadata = get_metadata_for_file(filepath, master)
+            if not metadata:
+                files_without_metadata = files_without_metadata + 1
+            else: 
+                files_with_metadata = files_with_metadata + 1
+    print('***************************************')
+    print('Total files found: ' + str(total_files))
+    print('Files with matching metadata: ' + str(files_with_metadata))
+    print('Files without matching metadata: ' + str(files_without_metadata))
+    print('***************************************')
 
 
 if args.master_file and args.dir:
@@ -78,6 +92,6 @@ if args.master_file and args.dir:
     elif '.csv' in args.master_file:
         master_data = pandas.read_csv(args.master_file)
 
-    add_headers_recursive(args.dir, master_data, args.overwrite)
+    check_metadata_recursive(args.dir, master_data)
 else:
     print('You need to supply a valid master file and directory with textfiles')
