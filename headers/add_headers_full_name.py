@@ -79,6 +79,7 @@ def clean(my_string):
     if (type(my_string)) is not str:
         my_string = str(my_string)
     my_string = my_string.strip()
+    my_string = re.sub(r'nan', r'NA', my_string)
     my_string = re.sub(r'NaN', r'NA', my_string)
     return my_string
 
