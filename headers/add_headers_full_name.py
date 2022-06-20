@@ -17,6 +17,7 @@ import argparse
 import re
 import os
 import pandas
+import hashlib
 
 # Define the way we retrieve arguments sent to the script.
 parser = argparse.ArgumentParser(description='Add Headers to Individual Textfile')
@@ -83,7 +84,53 @@ def clean(my_string):
     my_string = re.sub(r'NaN', r'NA', my_string)
     return my_string
 
-def add_header_to_file(filepath, metadata):
+
+def create_file_hash(filename, blocksize=65536):
+    file_handle = open(filename, 'rb')
+    buf = file_handle.read(blocksize)
+    hasher = hashlib.md5()
+    while len(buf) > 0:
+      hasher.update(buf)
+      buf = file_handle.read(blocksize)
+    return hasher.hexdigest()
+
+def analyze_results(results):
+    seen_content = set()
+    seen_filenames = set()
+    duplicate_hashes = []
+    duplicate_filenames = []
+    for r in results:
+        if r[1] in seen_content:
+            duplicate_hashes.append(r[1])
+        else:
+            seen_content.add(r[1])
+        if r[2] in seen_filenames:
+            duplicate_filenames.append(r[2])
+        else:
+            seen_filenames.add(r[2])
+    inc = 0
+    duplicate_content = []
+    if duplicate_hashes:
+        inc = inc + 1
+        duplicate_content = []
+        for i in duplicate_hashes:
+            group = []
+            for j in results:
+                if i == j[1]:
+                    group.append(j[0])
+            duplicate_content.append(group)
+        print()
+        print('** SOME ORIGINAL FILES HAD IDENTICAL CONTENTS: **')
+        for i in duplicate_content:
+            print(i)
+    if duplicate_filenames:
+        print()
+        print('** SOME FILES GENERATED IDENTICAL FILENAMES, EFFECTIVELY OVERWRITING EACH OTHER: **')
+        for i in duplicate_filenames:
+            print('* ' + i)
+
+
+def add_header_to_file(filepath, metadata, results):
     # print('Adding headers to file ' + filepath)
     textfile = open(filepath, 'r')
     not_windows_filename = re.sub(r'\\', r'/', filepath)
@@ -186,6 +233,10 @@ def add_header_to_file(filepath, metadata):
         exam_speaking = 'NA'
         exam_writing = 'NA'
 
+    hash = create_file_hash(filepath)
+    results.append([filepath, hash, output_filename])
+    print(output_filename)
+
     # write headers in
     print("<Student ID: " + crow_id + ">", file = output_file)
     print("<Country: " + country + ">", file = output_file)
@@ -221,12 +272,14 @@ def add_header_to_file(filepath, metadata):
             print(new_line, file = output_file)
     output_file.close()
     textfile.close()
+    return results
 
 
 def add_headers_recursive(directory, master):
     total_files = 0
     files_with_metadata = 0
     files_without_metadata = 0
+    results = []
     for dirpath, dirnames, files in os.walk(directory):
         for name in files:
             # Skip non text files.
@@ -238,16 +291,17 @@ def add_headers_recursive(directory, master):
             metadata = get_metadata_for_file(filepath, master)
             if metadata:
                 # We found metadata. Proceed to add headers to the file.
-                add_header_to_file(filepath, metadata)
+                results = add_header_to_file(filepath, metadata, results)
                 files_with_metadata = files_with_metadata + 1
             else:
                 files_without_metadata = files_without_metadata + 1
-    print('***************************************')
-    print('Total files found: ' + str(total_files))
-    print('Files successfully processed: ' + str(files_with_metadata))
-    print('Files failed to process: ' + str(files_without_metadata))
-    print('***************************************')
 
+    print('***************************************')
+    print('Files found: ' + str(total_files))
+    print('Files processed: ' + str(files_with_metadata))
+    print('Files failed to process (no metadata match): ' + str(files_without_metadata))
+    print('***************************************')
+    analyze_results(results)
 
 if args.master_file and args.dir:
     if '.xls' in args.master_file:
