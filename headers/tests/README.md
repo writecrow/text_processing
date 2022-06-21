@@ -1,6 +1,6 @@
 ## Automated tests
 
-This directory includes tests for ensuring expected output.
+This directory includes tests for ensuring expected output. These tests are useful for testing any *subsequent* changes to scripts, since they compare against a baseline output. If we make changes to the script that will introduce (intentional) changes to the output, the baseline files will need to be updated to reflect that change.
 
 ### Running the tests
 From within this directory, run `python runtests.py`.
