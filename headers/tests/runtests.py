@@ -4,6 +4,7 @@
 import sys
 import filecmp
 import pandas
+import difflib
 import os.path
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
@@ -21,11 +22,17 @@ if __name__ == '__main__':
             generated = os.path.join(dirpath, name)
             baseline = os.path.join(expected, name)
             report = filecmp.cmp(generated, baseline, shallow=False)
-            if report == True:
-                print('* Output matches!')
-            else:
+            if report is False:
                 print('************************************************************')
-                print('There are differences between the expected an actual output:')
-                print(generated)
-                print(baseline)
+                print('There are differences between the expected and actual output for ' + name)
+                with open(baseline, 'r') as hosts0:
+                    with open(generated, 'r') as hosts1:
+                        diff = difflib.unified_diff(
+                            hosts1.readlines(),
+                            hosts0.readlines(),
+                            fromfile='expected',
+                            tofile='actual',
+                        )
+                        for line in diff:
+                            sys.stdout.write(line)
                 print('************************************************************')
