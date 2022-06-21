@@ -1,0 +1,34 @@
+<Text>
+<Student IDs: 11113>
+<Group ID: NA>
+<Institution: University of Arizona>
+<Course: ENGL 101>
+<Mode: NA>
+<Length: NA>
+<Assignment: GA>
+<Draft: F>
+<Course Year: 2020>
+<Course Semester: Fall>
+<Instructor: 1567>
+<Section: 1002>
+</Text>
+
+<Student 1>
+<Student ID: 11113>
+<Country: NA>
+<L1: English; Spanish>
+<Heritage Spanish Speaker: Yes>
+<Year in School: 1>
+<Gender: F>
+<College: College of Ag & Life Sciences>
+<Program: Family Studies & Human Dev>
+<Proficiency Exam: NA>
+<Exam total: NA>
+<Exam reading: NA>
+<Exam listening: NA>
+<Exam speaking: NA>
+<Exam writing: NA>
+</Student 1>
+<End Header>
+
+I'm sorry for you." "I am all in a brood." "It is about her, I know. It's no business of mine, but I could find out all about the wedding--if it really did take place--if you wanted to know." "How could you?" "I wanted to go to Alfredston to get a few things I left there. And I could see Anny, who'll be sure to have heard all about it, as she has friends at Marygreen." Jude could not bear to acquiesce in this proposal; but his suspense pitted itself against his discretion, and won in the struggle. "You can ask about it if you like," he said. "I've not heard a sound from there. It must have been very private, if--they have married." "I am afraid I haven't enough cash to take me there and back, or I should have gone before. I must wait till I have earned some." "Oh--I can pay the journey for you," he said impatiently.
