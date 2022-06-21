@@ -33,6 +33,9 @@ args = parser.parse_args()
 
 
 def combine_tabs(filename):
+    if '.xlsx' in filename and '~' in filename:
+        # Skip any open XLS files.
+        return
     if '.xlsx' in filename or '.xls' in filename:
         print("Opening file " + filename)
         data = pandas.ExcelFile(filename)
@@ -150,7 +153,6 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
         df = df.drop("New Crow ID", axis=1)
         df = df.drop("Crow ID", axis=1)
         df = df.rename(index=str, columns={'Crow_ID': 'Crow ID'})
-
         df = df.drop_duplicates()
 
         df['course_section'] = df['Catalog Nbr'].astype(str) + df['Class Section_x'].astype(str)
@@ -184,6 +186,7 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
         master_slice = df[['Catalog Nbr', 'Class Section', 'Registrar ID','First Name', 'Last Name','Name','IELTS Speaking', 'IELTS Listening','IELTS Reading','IELTS Writing', 'IELTS Overall Band Score','year_in_school', 'College', 'Major', 'Birth Country Code', 'Gender', 'TOEFL COMPI', 'TOEFL Listening', 'TOEFL Reading', 'TOEFL Writing', 'TOEFL Speaking', 'Crow ID', 'Instructor Code', 'Alternate Name', 'term', 'mode_of_course', 'length_of_course', 'institution']]
    
         new_master = pandas.concat([all_master, master_slice], sort = False)
+        new_master = new_master.drop_duplicates()
         output_filename = re.sub(r'\s+', r'_', output_filename)
         new_master.to_csv('master_' + output_filename, index = False)
 
