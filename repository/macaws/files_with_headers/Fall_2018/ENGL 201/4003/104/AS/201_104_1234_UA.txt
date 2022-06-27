@@ -1,6 +1,0 @@
-<Institution: UA>
-<Macrogenre: Description>
-
-<End Header>
-
-This text represents the plaintext version of a repository file.
