@@ -3,16 +3,16 @@
 
 import sys
 import filecmp
-import pandas
 import difflib
 import os.path
+import pandas
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-import add_headers_full_name
+import arizona_add_headers
 
 if __name__ == '__main__':
     master = pandas.read_csv('test_metadata.csv')
-    add_headers_full_name.add_headers_recursive('test_data', master)
+    arizona_add_headers.add_headers_recursive('test_data', master)
     for dirpath, dirnames, files in os.walk('files_with_headers'):
         for name in files:
             # Skip non text files.
