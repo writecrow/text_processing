@@ -39,13 +39,13 @@ def get_metadata_for_file(filepath, master):
         fullname = row['First Name'] + ' ' + row['Last Name']
         short_first_name = row['First Name'].split(' ')
         short_last_name = row['Last Name'].split(' ')
-        if short_last_name[-1]:
-            short_last_name = short_last_name[-1]
+        if short_last_name[0]:
+            short_last_name = short_last_name[0]
         if short_first_name[0]:
             short_first_name = short_first_name[0]
         short_fullname = short_first_name + ' ' + short_last_name
         # If there is an explicit filename segment in this row, see if it is contained in the file's name.
-        if str(row['Filename']) in filename:
+        if str(row['Filename']) is not '' and str(row['Filename']) in filename:
             matches = matches + 1
             target_row = row
         elif fullname in filename:
@@ -54,14 +54,16 @@ def get_metadata_for_file(filepath, master):
         elif short_fullname in filename:
             matches = matches + 1
             target_row = row
-        elif row['Last Name'] in filename:
+        elif short_last_name in filename:
             possible_matches.append(
                 row['First Name'] + ' ' + row['Last Name'])
     # Report the results of our search.
     if matches == 0:
-        print('Unable to find any metadata for file: ' + filename)
+        print('Unable to find any metadata for file:')
+        print('    ' + filename)
         if possible_matches:
-            print('    Possible match: ' + ",".join(possible_matches))
+            print('    Possible matches: ' + ', '.join(possible_matches))
+            print('****************************************************************')
         return False
     elif matches > 1:
         print('More than one row of metadata matches this file: ' + filename)
