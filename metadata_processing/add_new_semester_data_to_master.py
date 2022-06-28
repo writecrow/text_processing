@@ -76,6 +76,7 @@ def combine_tabs(filename):
                 frames.append(this_tab)
             else:
                 print("There's a mismatch between instructor tab and master tab")
+                exit()
 
         # comment: combine all data
         if len(frames) != 0:
@@ -171,6 +172,7 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
         df = df.replace({"course_section": section_dictionary})
 
         df.rename(columns={'course_section':'Class Section'}, inplace=True)
+        df.rename(columns={'Spanish Heritage': 'Heritage Spanish'}, inplace=True)
 
         df = df.drop("Class Section_x", axis=1)
         df = df.drop("Class Section_y", axis=1)
@@ -184,7 +186,7 @@ def process_new_data(output_frames, master_student_data, all_master, instructor_
         df = df.rename(columns = {"Acad Level": "year_in_school"})
         #df = df.rename(columns = {"IELTS Overall Band Score": "IELTS Overall"})
     
-        master_slice = df[['Catalog Nbr', 'Class Section', 'Registrar ID','First Name', 'Last Name','Filename','Name','IELTS Speaking', 'IELTS Listening','IELTS Reading','IELTS Writing', 'IELTS Overall Band Score','year_in_school', 'College', 'Major', 'Birth Country Code', 'Gender', 'TOEFL COMPI', 'TOEFL Listening', 'TOEFL Reading', 'TOEFL Writing', 'TOEFL Speaking', 'Crow ID', 'Instructor Code', 'Alternate Name', 'term', 'mode_of_course', 'length_of_course', 'institution']]
+        master_slice = df[['Catalog Nbr', 'Class Section', 'Registrar ID','First Name', 'Last Name','Filename','Name','IELTS Speaking', 'IELTS Listening','IELTS Reading','IELTS Writing', 'IELTS Overall Band Score','year_in_school', 'College', 'Major', 'Birth Country Code', 'Gender', 'TOEFL COMPI', 'TOEFL Listening', 'TOEFL Reading', 'TOEFL Writing', 'TOEFL Speaking', 'Crow ID', 'Instructor Code', 'Alternate Name', 'term', 'mode_of_course', 'length_of_course', 'institution', 'L1', 'Heritage Spanish']]
    
         new_master = pandas.concat([all_master, master_slice], sort = False)
         new_master = new_master.drop_duplicates()
