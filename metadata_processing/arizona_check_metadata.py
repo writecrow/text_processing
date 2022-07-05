@@ -45,7 +45,7 @@ def get_metadata_for_file(filepath, master):
             short_first_name = short_first_name[0]
         short_fullname = short_first_name + ' ' + short_last_name
         # If there is an explicit filename segment in this row, see if it is contained in the file's name.
-        if str(row['Filename']) is not '' and str(row['Filename']) in filename:
+        if str(row['Filename']) != '' and str(row['Filename']) in filename:
             matches = matches + 1
             target_row = row
         elif fullname in filename:
