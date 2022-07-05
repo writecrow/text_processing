@@ -44,21 +44,24 @@ def get_metadata_for_file(filepath, master):
         short_first_name = row['First Name'].split(' ')
         short_last_name = row['Last Name'].split(' ')
         if short_last_name[0]:
-            short_last_name = short_last_name[0]
+            for part in short_last_name:
+                if len(part) > 1:
+                    short_last_name = part
+                    break
         if short_first_name[0]:
             short_first_name = short_first_name[0]
         short_fullname = short_first_name + ' ' + short_last_name
         # If there is an explicit filename segment in this row, see if it is contained in the file's name.
-        if str(row['Filename']) is not '' and str(row['Filename']) in filename:
+        if str(row['Filename']) is not '' and str(row['Filename']).lower() in filename.lower():
             matches = matches + 1
             target_row = row
-        elif fullname in filename:
+        elif fullname.lower() in filename.lower():
             matches = matches + 1
             target_row = row
-        elif short_fullname in filename:
+        elif short_fullname.lower() in filename.lower():
             matches = matches + 1
             target_row = row
-        elif row['Last Name'] in filename:
+        elif short_last_name in filename or short_first_name in filename:
             possible_matches.append(
                 row['First Name'] + ' ' + row['Last Name'])
     # Report the results of our search.
