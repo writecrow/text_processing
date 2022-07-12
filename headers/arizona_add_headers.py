@@ -45,14 +45,16 @@ def get_metadata_for_file(filepath, master):
         short_last_name = row['Last Name'].split(' ')
         if short_last_name[0]:
             for part in short_last_name:
-                if len(part) > 1:
+                if len(part) > 2:
                     short_last_name = part
                     break
+        if isinstance(short_last_name, list):
+            short_last_name = row['Last Name']
         if short_first_name[0]:
             short_first_name = short_first_name[0]
         short_fullname = short_first_name + ' ' + short_last_name
         # If there is an explicit filename segment in this row, see if it is contained in the file's name.
-        if str(row['Filename']) is not '' and str(row['Filename']).lower() in filename.lower():
+        if str(row['Filename']) != '' and str(row['Filename']).lower() in filename.lower():
             matches = matches + 1
             target_row = row
         elif fullname.lower() in filename.lower():
@@ -66,13 +68,14 @@ def get_metadata_for_file(filepath, master):
                 row['First Name'] + ' ' + row['Last Name'])
     # Report the results of our search.
     if matches == 0:
-        print('Unable to find any metadata for this file: ' + filename)
+        print('Unable to find any metadata for this file: ' + filepath)
         if possible_matches:
             print('Possible match in spreadsheet:')
             print(possible_matches)
+        exit()
         return False
     elif matches > 1:
-        print('More than one row of metadata matches this file: ' + filename)
+        print('More than one row of metadata matches this file: ' + filepath)
         return False
     else:
         # Success! We found a single metadata row corresponding to this file.

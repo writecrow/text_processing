@@ -41,9 +41,11 @@ def get_metadata_for_file(filepath, master):
         short_last_name = row['Last Name'].split(' ')
         if short_last_name[0]:
             for part in short_last_name:
-                if len(part) > 1:
+                if len(part) > 2:
                     short_last_name = part
                     break
+        if isinstance(short_last_name, list):
+            short_last_name = row['Last Name']
         if short_first_name[0]:
             short_first_name = short_first_name[0]
         short_fullname = short_first_name + ' ' + short_last_name
