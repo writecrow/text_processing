@@ -11,7 +11,7 @@ from shutil import copyfile
 # prepend headers to each file and save to directory "files_with_headers".
 #
 # COMMAND SYNTAX:
-#   python macaws_repository_filenames.py path
+#   python macaws_repository_filenames.py path CSV
 # Example (with actual test folder)
 #   python macaws_repository_headers.py test_data/pre_headers test_data/metadata.csv
 
@@ -38,7 +38,8 @@ else:
 
 # Convert the metadata spreadsheet to an easily traversable dictionary.
 data = metadata.to_dict(orient="records")
-institution = 'UA'
+institution = 'University of Arizona'
+target_lang = 'Russian'
 
 ### END PRE-RUN CHECKS ###
 
@@ -53,8 +54,11 @@ def clean(my_string):
 
 ### Try to find the text's metadata by 'Assignment Code' match.
 def get_metadata_by_assignment(assignment):
+    clean_assignment = str(assignment.lstrip('0'))
+    if clean_assignment == "NA":
+        return False
     for row in data:
-        if str(row['Assignment Code']) == str(assignment):
+        if str(row['Assignment Code']) == clean_assignment:
             return row
     # Otherwise, no metadata was found.
     return False
@@ -63,19 +67,39 @@ def add_heading(key, value, filename):
     print("<" + key + ": " + value + ">", file=filename)
 
 
-def add_header_to_file(filepath, info):
+def add_header_to_file(filepath):
     # print('Adding headers to file ' + filepath)
     textfile = open(filepath, 'r')
 
     path = os.path.normpath(filepath)
     path_parts = path.split(os.sep)
+    type = path_parts[-2]
+    inst = path_parts[-4]
+    course = path_parts[-5]
+    term = path_parts[-6]
+    term_parts = term.split("_")
+    year = term_parts[1]
+    semester = term_parts[0]
+
 
     # @todo: manipulate output filename as needed.
     output_filename = path_parts[-1]
+    data = output_filename.split('_')
+    language = data[0]
+    assignment_code = data[2].lstrip("0")
+    material_type = data[3]
+    id = data[4]
+    info = get_metadata_by_assignment(assignment_code)
+    if info is not False:
+        macrogenre = clean(info['Macrogenre'])
+        mode = clean(info['Mode'])
+        topic = clean(info['Assignment topic'])
+    else:
+        macrogenre = "NA"
+        mode = "NA"
+        topic = "NA"
     output_path = os.path.join(
         'files_with_headers', path_parts[-6], path_parts[-5], path_parts[-4], path_parts[-3], path_parts[-2])
-    ## Get data from metadata
-    macrogenre = clean(info['Macrogenre'])
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -83,7 +107,17 @@ def add_header_to_file(filepath, info):
 
     # Write headers, line by line.
     add_heading('Institution', institution, output_file)
-    add_heading('Macrogenre', macrogenre, output_file)
+    add_heading('Target Language', target_lang, output_file)
+    add_heading('Course Year', year, output_file)
+    add_heading('Course Semester', semester, output_file)
+    add_heading('Course', course, output_file)
+    add_heading('Macro Genre', macrogenre, output_file)
+    add_heading('Assignment Mode', mode, output_file)
+    add_heading('Assignment Topic', topic, output_file)
+    add_heading('Assignment Code', assignment_code, output_file)
+    add_heading('Document Type', type, output_file)
+    add_heading('File ID', id, output_file)
+    add_heading('Instructor', inst, output_file)
     print("<End Header>", file=output_file)
     print("", file=output_file)
     for line in textfile:
@@ -107,22 +141,17 @@ def add_headers_recursive(directory):
             if '.txt' not in name:
                 continue
             parts = name.split('_')
-            assignment = parts[1]
+            assignment = parts[2]
             total_files = total_files + 1
             filepath = os.path.join(dirpath, name)
             # Retrieve metadata for this file from the spreadsheet.
-            info = get_metadata_by_assignment(assignment)
-            if info:
-                # We found metadata. Proceed to add headers to the file.
-                results = add_header_to_file(filepath, info)
-                files_with_metadata = files_with_metadata + 1
-            else:
-                files_without_metadata = files_without_metadata + 1
+            results = add_header_to_file(filepath)
+
     print("")
     print('***************************************')
     print('Files found: ' + str(total_files))
-    print('Files processed: ' + str(files_with_metadata))
-    print('Files failed to process (no metadata match): ' + str(files_without_metadata))
+    # print('Files processed: ' + str(files_with_metadata))
+    # print('Files failed to process (no metadata match): ' + str(files_without_metadata))
     print('***************************************')
 
 add_headers_recursive(directory)
