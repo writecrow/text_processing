@@ -13,7 +13,8 @@ from shutil import copyfile  # library for system operations
 #   python macaws_repository_filenames.py test_data/pre_finalized_filenames
 
 ## This number should be set to the *next*
-counter = 1234
+counter = 1000
+lang = "RSSS"
 allowed_extensions = ['.pdf', '.docx']
 cwd = os.getcwd()
 
@@ -71,12 +72,15 @@ if __name__ == '__main__':  # iniitalizes the main block of code
                 year = term[1]
                 instructor = directory_parts[instructor_level]
                 assignment = directory_parts[assignment_level]
+                if assignment != "NA":
+                    assignment = assignment.zfill(4)
                 material = directory_parts[material_level]
                 # print("Counter:", counter)
-                new_filename = separator.join([course, assignment, str(counter), institution, str(file_extension)])
+                # LANG_COURSE_ASSIGNMENT CODE_MATERIAL TYPE_UNIQUE FILE ID_INSTITUTION
+                new_filename = separator.join([lang, course, assignment , material, str(counter), institution]) + str(file_extension)
                 # print("new filename: ", new_filename)
                 # x = input('press enter to continue')
-                newpath = os.path.join(cwd, 'filenames', sem_year, 'ENGL ' + course, instructor, assignment, material)
+                newpath = os.path.join(cwd, 'pdfs_with_filenames', sem_year, 'RSSS ' + course, instructor, assignment, material)
                 os.makedirs(newpath, exist_ok=True)
                 # print("new path: ", newpath)
                 #x = input('press enter to continue')
