@@ -3,6 +3,7 @@
 
 import sys  # imports the library for command line
 import os  # imports the library for opening and writing files
+from os.path import exists
 from shutil import copyfile  # library for system operations
 
 # Given a file located in a specific folder path,
@@ -74,19 +75,24 @@ if __name__ == '__main__':  # iniitalizes the main block of code
                 assignment = directory_parts[assignment_level]
                 if assignment != "NA":
                     assignment = assignment.zfill(4)
+                # Establish multi-assignment syntax.
+                assignment.replace('_and_', ',')
                 material = directory_parts[material_level]
                 # print("Counter:", counter)
                 # LANG_COURSE_ASSIGNMENT CODE_MATERIAL TYPE_UNIQUE FILE ID_INSTITUTION
                 new_filename = separator.join([lang, course, assignment , material, str(counter), institution]) + str(file_extension)
                 # print("new filename: ", new_filename)
                 # x = input('press enter to continue')
-                newpath = os.path.join(cwd, 'pdfs_with_filenames', sem_year, 'RSSS ' + course, instructor, assignment, material)
+                newpath = os.path.join(cwd, 'pdfs_with_filenames', sem_year, 'RSSS ' + course, material)
                 os.makedirs(newpath, exist_ok=True)
                 # print("new path: ", newpath)
                 #x = input('press enter to continue')
                 ## Defines new file, with same folder location
                 output_file = os.path.join(newpath, new_filename)
                 ## Copies the original file to the newly named file
+                if (exists(output_file)):
+                    print('File with filename ' + output_file + ' already exists.')
+                    exit()
                 copyfile(fullpath, output_file)
                 print('Created ' + output_file)
                 counter = counter + 1
