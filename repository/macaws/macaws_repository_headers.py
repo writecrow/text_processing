@@ -39,7 +39,6 @@ else:
 # Convert the metadata spreadsheet to an easily traversable dictionary.
 data = metadata.to_dict(orient="records")
 institution = 'University of Arizona'
-target_lang = 'Russian'
 
 ### END PRE-RUN CHECKS ###
 
@@ -73,21 +72,23 @@ def add_header_to_file(filepath):
 
     path = os.path.normpath(filepath)
     path_parts = path.split(os.sep)
-    type = path_parts[-2]
-    inst = path_parts[-4]
-    course = path_parts[-5]
-    term = path_parts[-6]
+    course = path_parts[-3]
+    term = path_parts[-4]
     term_parts = term.split("_")
     year = term_parts[1]
     semester = term_parts[0]
-
 
     # @todo: manipulate output filename as needed.
     output_filename = path_parts[-1]
     data = output_filename.split('_')
     language = data[0]
+    if language == "RSSS":
+        target_lang = 'Russian'
+    else:
+        target_lang = "Portuguese"
+    instructor = data[4]
     assignment_code = data[2].lstrip("0")
-    material_type = data[3]
+    document_type = data[3]
     id = data[4]
     info = get_metadata_by_assignment(assignment_code)
     if info is not False:
@@ -99,7 +100,7 @@ def add_header_to_file(filepath):
         mode = "NA"
         topic = "NA"
     output_path = os.path.join(
-        'files_with_headers', path_parts[-6], path_parts[-5], path_parts[-4], path_parts[-3], path_parts[-2])
+        'files_with_headers', path_parts[-4], path_parts[-3], path_parts[-2])
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -115,9 +116,9 @@ def add_header_to_file(filepath):
     add_heading('Assignment Mode', mode, output_file)
     add_heading('Assignment Topic', topic, output_file)
     add_heading('Assignment Code', assignment_code, output_file)
-    add_heading('Document Type', type, output_file)
+    add_heading('Document Type', document_type, output_file)
     add_heading('File ID', id, output_file)
-    add_heading('Instructor', inst, output_file)
+    add_heading('Instructor', instructor, output_file)
     print("<End Header>", file=output_file)
     print("", file=output_file)
     for line in textfile:
