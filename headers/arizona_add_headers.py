@@ -5,13 +5,13 @@
 # metadata headers are added to each individual text files, 
 # written to the directory "files_with_headers"
 #
-# Mac OS example:
-#    python add_headers.py --directory=Spring\ 2018/normalized/ --master_file=Metadata_Spring_2018_updated.csv
-#    python add_headers.py --directory=Fall\ 2018/normalized/ --master_file=Metadata_Fall_2018_updated.csv
-#    python add_headers.py --directory=../../../Fall\ 2017/normalized/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
+# Mac/Linux example:
+#    python arizona_add_headers.py --directory=Standardized/ --master_file=spring2021_processed.csv
+#    python arizona_add_headers.py --directory=Fall\ 2018/normalized/ --master_file=Metadata_Fall_2018_updated.csv
+#    python arizona_add_headers.py --directory=../../../Fall\ 2017/normalized/ --master_file=../../../Metadata/Fall\ 2017/Metadata_Fall_2017.xlsx
 #
 # Windows run with Anaconda Prompt example:
-#    python add_headers.py --directory="Fall 2018/normalized/" --master_file="Metadata_Fall_2018_updated.csv"
+#    python arizona_add_headers.py --directory="Fall 2018/normalized/" --master_file="Metadata_Fall_2018_updated.csv"
 
 import argparse
 import re
