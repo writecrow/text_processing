@@ -25,6 +25,14 @@ parser.add_argument('--directory', action="store", dest='dir', default='')
 parser.add_argument('--master_file', action="store", dest='master_file', default='')
 args = parser.parse_args()
 
+# Look for a string like G001_01.
+def get_group_id(filename):
+    regex = r"G(\d+)_(\d+)"
+    match = re.search(regex, filename)
+    if match is not None:
+        return match.group()
+    return False
+
 
 def get_metadata_for_file(filepath, master):
     # Convert the master spreadsheet to an easily traversable dictionary.
@@ -34,6 +42,14 @@ def get_metadata_for_file(filepath, master):
     filepath_parts = normed_path.split(os.sep)
     # The filename is the final segment of a split path.
     filename = filepath_parts[-1]
+    group_id = get_group_id(filename)
+    if group_id is not False:
+        target_rows = []
+        for row in data:
+            search = "G" + row['GROUP_ID']
+            if search == group_id:
+                target_rows.append(row)
+        return target_rows
     # Check two different methods to discover the metadata: explicit filename, or student name concatenated.
     matches = 0
     possible_matches = []
@@ -79,7 +95,8 @@ def get_metadata_for_file(filepath, master):
         return False
     else:
         # Success! We found a single metadata row corresponding to this file.
-        return target_row
+        # This will be returned as a list, to normalize it with groups.
+        return [target_row]
 
 # function that removes leading spaces and replaces "NaN" with "NA"
 def clean(my_string):
@@ -135,20 +152,61 @@ def analyze_results(results):
         for i in duplicate_filenames:
             print('* ' + i)
 
-def add_heading(key, value, filename):
-    print("<" + key + ": " + value + ">", file=filename)
+def add_heading(key, value):
+    if value == '':
+        value = 'NA'
+    return "<" + key + ": " + value + ">"
 
 
 def add_header_to_file(filepath, metadata, results):
     # print('Adding headers to file ' + filepath)
     textfile = open(filepath, 'r')
+
     not_windows_filename = re.sub(r'\\', r'/', filepath)
     clean_filename = re.sub(r'\.\.\/', r'', not_windows_filename)
     filename_parts = clean_filename.split('/')
-    course = clean(metadata['Catalog Nbr'])
     assignment = filename_parts[-2][:2]
     draft = filename_parts[-2][2:]
     draft = re.sub('D', '', draft)
+    course = clean(metadata[0]['Catalog Nbr'])
+    institution_code = re.sub(r'[a-z\s\-\–]', r'', clean(metadata[0]['institution']))
+    term = clean(metadata[0]['term'])
+    instructor = clean(metadata[0]['Instructor Code'])
+    section = clean(metadata[0]['Class Section'])
+    mode = clean(metadata[0]['mode_of_course'])
+    length = clean(metadata[0]['length_of_course'])
+    institution = clean(metadata['institution'])
+    semester = term.split()[0]
+    year = term.split()[1]
+
+    headers = []
+    # Write headers, line by line.
+    headers.append("<Text>")
+    ids = []
+    comma = ','
+    for student in metadata:
+        ids.append(student['Crow ID']) 
+    headers.append(add_heading('Students IDs', comma.join(ids)))
+    headers.append(add_heading('Group ID', metadata[0]['GROUP_ID']))
+    headers.append(add_heading('Institution', institution))
+    headers.append(add_heading('Course', 'ENGL ' + course))
+    headers.append(add_heading('Mode', mode))
+    headers.append(add_heading('Length', length))
+    headers.append(add_heading('Assignment', assignment))
+    headers.append(add_heading('Draft', draft))
+    headers.append(add_heading('Course Year'))
+    headers.append(add_heading('Course Semester', semester))
+    headers.append(add_heading('Instructor', instructor))
+    headers.append(add_heading('Section', section))
+    headers.append('</Text>')
+    headers.append('')
+
+    # Get student(s) metadata
+    inc = 1;
+    for student in metadata:
+        headers.append('<Student ' + str(inc) + '>')
+        inc+=1
+
     country_code = clean(metadata['Birth Country Code'])
     year_in_school = clean(metadata['Acad Level'])
     if year_in_school not in ['1','2','3','4']:
@@ -166,10 +224,10 @@ def add_header_to_file(filepath, metadata, results):
         year_in_school_numeric = year_in_school
     gender = clean(metadata['Gender'])
     crow_id = clean(metadata['Crow ID'])
-    institution_code = re.sub(r'[a-z\s\-\–]', r'', clean(metadata['institution']))
+
     # Format: course_assignment_draft_country_yearinschool_gender_studentID_institution.txt
     output_filename = '_'.join([course, assignment, draft, country_code, year_in_school_numeric, gender, crow_id, institution_code])
-    if "cues" in str(metadata['institution']):
+    if "cues" in str(metadata[0]['institution']):
         output_filename += "_c"
     output_filename += '.txt'
     output_filename = re.sub(r'\s', r'', output_filename)
@@ -178,17 +236,15 @@ def add_header_to_file(filepath, metadata, results):
         print('Series found in output filename: ' + output_filename + '. Skipping...')
         return False
 
-    term = clean(metadata['term'])
+
     path = os.path.join('files_with_headers', term, 'ENGL ' + course, assignment, draft)
+
 
     if not os.path.exists(path):
         os.makedirs(path)
     output_file = open(os.path.join(path, output_filename), 'w')
 
     country = clean(metadata['Descr'])
-    institution = clean(metadata['institution'])
-    semester = term.split()[0]
-    year = term.split()[1]
     college = clean(metadata['College'])
     program = clean(metadata['Major'])
     TOEFL_COMPI = clean(metadata['TOEFL COMPI'])
@@ -201,10 +257,6 @@ def add_header_to_file(filepath, metadata, results):
     IELTS_Reading = clean(metadata['IELTS Reading'])
     IELTS_Writing = clean(metadata['IELTS Writing'])
     IELTS_Speaking = clean(metadata['IELTS Speaking'])
-    instructor = clean(metadata['Instructor Code'])
-    section = clean(metadata['Class Section'])
-    mode = clean(metadata['mode_of_course'])
-    length = clean(metadata['length_of_course'])
     L1 = clean(metadata['L1'])
     heritage_spanish = clean(metadata['Heritage Spanish'])
     proficiency_exam = ''
@@ -245,24 +297,6 @@ def add_header_to_file(filepath, metadata, results):
     hash = create_file_hash(filepath)
     results.append([filepath, hash, output_filename])
 
-    # Write headers, line by line.
-    print("<Text>", file=output_file)
-    add_heading('Student IDs', crow_id, output_file)
-    add_heading('Group ID', 'NA', output_file)
-    add_heading('Institution', institution, output_file)
-    add_heading('Course', 'ENGL ' + course , output_file)
-    add_heading('Mode', mode, output_file)
-    add_heading('Length', length, output_file)
-    add_heading('Assignment', assignment, output_file)
-    add_heading('Draft', draft, output_file)
-    add_heading('Course Year', year, output_file)
-    add_heading('Course Semester', semester, output_file)
-    add_heading('Instructor', instructor, output_file)
-    add_heading('Section', section, output_file)
-    print("</Text>", file=output_file)
-    print("", file=output_file)
-
-    print("<Student 1>", file=output_file)
     add_heading('Student ID', crow_id, output_file)
     add_heading('Country', country, output_file)
     add_heading('L1', L1, output_file)

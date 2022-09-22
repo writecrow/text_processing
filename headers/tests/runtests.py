@@ -12,7 +12,7 @@ import arizona_add_headers
 
 if __name__ == '__main__':
     master = pandas.read_csv('test_metadata.csv')
-    arizona_add_headers.add_headers_recursive('test_data', master)
+    arizona_add_headers.add_headers_recursive('files_without_headers', master)
     for dirpath, dirnames, files in os.walk('files_with_headers'):
         for name in files:
             # Skip non text files.

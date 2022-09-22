@@ -1,0 +1,34 @@
+<Text>
+<Student IDs: 11112>
+<Group ID: NA>
+<Institution: University of Arizona>
+<Course: ENGL 101>
+<Mode: NA>
+<Length: NA>
+<Assignment: IR>
+<Draft: F>
+<Course Year: 2020>
+<Course Semester: Fall>
+<Instructor: 1567>
+<Section: 1001>
+</Text>
+
+<Student 1>
+<Student ID: 11112>
+<Country: NA>
+<L1: English>
+<Heritage Spanish Speaker: Yes>
+<Year in School: 1>
+<Gender: F>
+<College: Eller College of Management>
+<Program: Pre-Business>
+<Proficiency Exam: NA>
+<Exam total: NA>
+<Exam reading: NA>
+<Exam listening: NA>
+<Exam speaking: NA>
+<Exam writing: NA>
+</Student 1>
+<End Header>
+
+With respect to this last fact, I was so convinced that not even a stripe of colour appears from what would commonly be called an accident, that I was led solely from the occurrence of the face-stripes on this hybrid from the ass and hemionus, to ask Colonel Poole whether such face-stripes ever occur in the eminently striped Kattywar breed of horses, and was, as we have seen, answered in the affirmative. What now are we to say to these several facts.

@@ -1,0 +1,34 @@
+<Text>
+<Student IDs: 11111>
+<Group ID: NA>
+<Institution: University of Arizona - cues>
+<Course: ENGL 107>
+<Mode: Live Online>
+<Length: 16 weeks>
+<Assignment: GA>
+<Draft: F>
+<Course Year: 2020>
+<Course Semester: Fall>
+<Instructor: 1234>
+<Section: 1000>
+</Text>
+
+<Student 1>
+<Student ID: 11111>
+<Country: Bangladesh>
+<L1: Bangla>
+<Heritage Spanish Speaker: No>
+<Year in School: 1>
+<Gender: M>
+<College: College of Science>
+<Program: Pre-Neurosci & Cognitive Sci>
+<Proficiency Exam: TOEFL>
+<Exam total: 110.0>
+<Exam reading: 30.0>
+<Exam listening: 30.0>
+<Exam speaking: 23.0>
+<Exam writing: 27.0>
+</Student 1>
+<End Header>
+
+He scarcely needed an invitation to stay supper; and before he went away, an engagement was formed, chiefly through his own and Mrs. Bennet’s means, for his coming next morning to shoot with her husband. After this day, Jane said no more of her indifference. Not a word passed between the sisters concerning Bingley; but Elizabeth went to bed in the happy belief that all must speedily be concluded, unless Mr. Darcy returned within the stated time. Seriously, however, she felt tolerably persuaded that all this must have taken place with that gentleman’s concurrence. Bingley was punctual to his appointment; and he and Mr.
