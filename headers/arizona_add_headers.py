@@ -157,59 +157,9 @@ def add_heading(key, value):
         value = 'NA'
     return "<" + key + ": " + value + ">"
 
-
-def add_header_to_file(filepath, metadata, results):
-    # print('Adding headers to file ' + filepath)
-    textfile = open(filepath, 'r')
-
-    not_windows_filename = re.sub(r'\\', r'/', filepath)
-    clean_filename = re.sub(r'\.\.\/', r'', not_windows_filename)
-    filename_parts = clean_filename.split('/')
-    assignment = filename_parts[-2][:2]
-    draft = filename_parts[-2][2:]
-    draft = re.sub('D', '', draft)
-    course = clean(metadata[0]['Catalog Nbr'])
-    institution_code = re.sub(r'[a-z\s\-\–]', r'', clean(metadata[0]['institution']))
-    term = clean(metadata[0]['term'])
-    instructor = clean(metadata[0]['Instructor Code'])
-    section = clean(metadata[0]['Class Section'])
-    mode = clean(metadata[0]['mode_of_course'])
-    length = clean(metadata[0]['length_of_course'])
-    institution = clean(metadata['institution'])
-    semester = term.split()[0]
-    year = term.split()[1]
-
-    headers = []
-    # Write headers, line by line.
-    headers.append("<Text>")
-    ids = []
-    comma = ','
-    for student in metadata:
-        ids.append(student['Crow ID']) 
-    headers.append(add_heading('Students IDs', comma.join(ids)))
-    headers.append(add_heading('Group ID', metadata[0]['GROUP_ID']))
-    headers.append(add_heading('Institution', institution))
-    headers.append(add_heading('Course', 'ENGL ' + course))
-    headers.append(add_heading('Mode', mode))
-    headers.append(add_heading('Length', length))
-    headers.append(add_heading('Assignment', assignment))
-    headers.append(add_heading('Draft', draft))
-    headers.append(add_heading('Course Year'))
-    headers.append(add_heading('Course Semester', semester))
-    headers.append(add_heading('Instructor', instructor))
-    headers.append(add_heading('Section', section))
-    headers.append('</Text>')
-    headers.append('')
-
-    # Get student(s) metadata
-    inc = 1;
-    for student in metadata:
-        headers.append('<Student ' + str(inc) + '>')
-        inc+=1
-
-    country_code = clean(metadata['Birth Country Code'])
-    year_in_school = clean(metadata['Acad Level'])
-    if year_in_school not in ['1','2','3','4']:
+def get_year_in_school_numeric(raw):
+    year_in_school = clean(raw)
+    if year_in_school not in ['1', '2', '3', '4']:
         if year_in_school.lower() == 'freshman':
             year_in_school_numeric = '1'
         elif year_in_school.lower() == 'sophomore':
@@ -222,43 +172,29 @@ def add_header_to_file(filepath, metadata, results):
             year_in_school_numeric = 'NA'
     else:
         year_in_school_numeric = year_in_school
-    gender = clean(metadata['Gender'])
-    crow_id = clean(metadata['Crow ID'])
+    return year_in_school_numeric
 
-    # Format: course_assignment_draft_country_yearinschool_gender_studentID_institution.txt
-    output_filename = '_'.join([course, assignment, draft, country_code, year_in_school_numeric, gender, crow_id, institution_code])
-    if "cues" in str(metadata[0]['institution']):
-        output_filename += "_c"
-    output_filename += '.txt'
-    output_filename = re.sub(r'\s', r'', output_filename)
-    output_filename = re.sub(r'__', r'_NA_', output_filename)
-    if 'Series' in output_filename:
-        print('Series found in output filename: ' + output_filename + '. Skipping...')
-        return False
-
-
-    path = os.path.join('files_with_headers', term, 'ENGL ' + course, assignment, draft)
-
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-    output_file = open(os.path.join(path, output_filename), 'w')
-
-    country = clean(metadata['Descr'])
-    college = clean(metadata['College'])
-    program = clean(metadata['Major'])
-    TOEFL_COMPI = clean(metadata['TOEFL COMPI'])
-    TOEFL_Listening = clean(metadata['TOEFL Listening'])
-    TOEFL_Reading = clean(metadata['TOEFL Reading'])
-    TOEFL_Writing = clean(metadata['TOEFL Writing'])
-    TOEFL_Speaking = clean(metadata['TOEFL Speaking'])
-    IELTS_Overall = clean(metadata['IELTS Overall Band Score'])
-    IELTS_Listening = clean(metadata['IELTS Listening'])
-    IELTS_Reading = clean(metadata['IELTS Reading'])
-    IELTS_Writing = clean(metadata['IELTS Writing'])
-    IELTS_Speaking = clean(metadata['IELTS Speaking'])
-    L1 = clean(metadata['L1'])
-    heritage_spanish = clean(metadata['Heritage Spanish'])
+# Given a single row of student metadata, add it to the list of headers
+def add_student(row, headers):
+    country_code = clean(row['Birth Country Code'])
+    year_in_school_numeric = get_year_in_school_numeric(row['Acad Level'])
+    gender = clean(row['Gender'])
+    crow_id = clean(row['Crow ID'])
+    country = clean(row['Descr'])
+    college = clean(row['College'])
+    program = clean(row['Major'])
+    TOEFL_COMPI = clean(row['TOEFL COMPI'])
+    TOEFL_Listening = clean(row['TOEFL Listening'])
+    TOEFL_Reading = clean(row['TOEFL Reading'])
+    TOEFL_Writing = clean(row['TOEFL Writing'])
+    TOEFL_Speaking = clean(row['TOEFL Speaking'])
+    IELTS_Overall = clean(row['IELTS Overall Band Score'])
+    IELTS_Listening = clean(row['IELTS Listening'])
+    IELTS_Reading = clean(row['IELTS Reading'])
+    IELTS_Writing = clean(row['IELTS Writing'])
+    IELTS_Speaking = clean(row['IELTS Speaking'])
+    L1 = clean(row['L1'])
+    heritage_spanish = clean(row['Heritage Spanish'])
     proficiency_exam = ''
     exam_total = ''
     exam_reading = ''
@@ -293,26 +229,110 @@ def add_header_to_file(filepath, metadata, results):
         exam_listening = 'NA'
         exam_speaking = 'NA'
         exam_writing = 'NA'
+    headers.append(add_heading('Student ID', crow_id))
+    headers.append(add_heading('Country', country))
+    headers.append(add_heading('L1', L1))
+    headers.append(add_heading('Heritage Spanish Speaker', heritage_spanish.capitalize()))
+    headers.append(add_heading('Year in School', year_in_school_numeric))
+    headers.append(add_heading('Gender', gender))
+    headers.append(add_heading('College', college))
+    headers.append(add_heading('Program', program))
+    headers.append(add_heading('Proficiency Exam', proficiency_exam))
+    headers.append(add_heading('Exam total', exam_total))
+    headers.append(add_heading('Exam reading', exam_reading))
+    headers.append(add_heading('Exam listening', exam_listening))
+    headers.append(add_heading('Exam speaking', exam_speaking))
+    headers.append(add_heading('Exam writing', exam_writing))
+    return headers
 
-    hash = create_file_hash(filepath)
-    results.append([filepath, hash, output_filename])
+def add_header_to_file(filepath, metadata, results):
+    # print('Adding headers to file ' + filepath)
+    textfile = open(filepath, 'r')
+    # Isolate the first row from the metadata for general text information
+    # (Texts written by a group will have multiple rows)
+    row = metadata[0]
+    not_windows_filename = re.sub(r'\\', r'/', filepath)
+    clean_filename = re.sub(r'\.\.\/', r'', not_windows_filename)
+    filename_parts = clean_filename.split('/')
+    assignment = filename_parts[-2][:2]
+    draft = filename_parts[-2][2:]
+    draft = re.sub('D', '', draft)
+    course = clean(row['Catalog Nbr'])
+    institution_code = re.sub(r'[a-z\s\-\–]', r'', clean(row['institution']))
+    term = clean(row['term'])
+    instructor = clean(row['Instructor Code'])
+    section = clean(row['Class Section'])
+    mode = clean(row['mode_of_course'])
+    length = clean(row['length_of_course'])
+    institution = clean(row['institution'])
+    semester = term.split()[0]
+    year = term.split()[1]
+    if len(metadata) != 1:
+        group_id = row['GROUP_ID']
+    else:
+        group_id = 'NA'
 
-    add_heading('Student ID', crow_id, output_file)
-    add_heading('Country', country, output_file)
-    add_heading('L1', L1, output_file)
-    add_heading('Heritage Spanish Speaker', heritage_spanish.capitalize(), output_file)
-    add_heading('Year in School', year_in_school_numeric, output_file)
-    add_heading('Gender', gender, output_file)
-    add_heading('College', college, output_file)
-    add_heading('Program', program, output_file)
-    add_heading('Proficiency Exam', proficiency_exam, output_file)
-    add_heading('Exam total', exam_total, output_file)
-    add_heading('Exam reading', exam_reading, output_file)
-    add_heading('Exam listening', exam_listening, output_file)
-    add_heading('Exam speaking', exam_speaking, output_file)
-    add_heading('Exam writing', exam_writing, output_file)
-    print("</Student 1>", file=output_file)
+    headers = []
+    # Build general headers.
+    headers.append("<Text>")
+    ids = []
+    comma = ','
+    for student in metadata:
+        ids.append(str(student['Crow ID'])) 
+    headers.append(add_heading('Student IDs', comma.join(ids)))
+    headers.append(add_heading('Group ID', group_id))
+    headers.append(add_heading('Institution', institution))
+    headers.append(add_heading('Course', 'ENGL ' + course))
+    headers.append(add_heading('Mode', mode))
+    headers.append(add_heading('Length', length))
+    headers.append(add_heading('Assignment', assignment))
+    headers.append(add_heading('Draft', draft))
+    headers.append(add_heading('Course Year', year))
+    headers.append(add_heading('Course Semester', semester))
+    headers.append(add_heading('Instructor', instructor))
+    headers.append(add_heading('Section', section))
+    headers.append('</Text>')
+    headers.append('')
 
+    # Build student(s) metadata (if the text is written by a group, there will be more than one)
+    inc = 1;
+    for student in metadata:
+        headers.append('<Student ' + str(inc) + '>')
+        headers = add_student(student, headers)
+        headers.append('</Student ' + str(inc) + '>')
+        headers.append('')
+        inc+=1
+
+    # Build destintation directory
+    path = os.path.join('files_with_headers', term, 'ENGL ' + course, assignment, draft)
+    if not os.path.exists(path):
+        os.makedirs(path)
+    # Build output filename
+    # Format: course_assignment_draft_country_yearinschool_gender_studentID_institution.txt
+    filename_parts = [course, assignment, draft]
+    if (len(metadata)) == 1:
+        filename_parts.append(clean(row['Birth Country Code']))
+        filename_parts.append(get_year_in_school_numeric(row['Acad Level']))
+        filename_parts.append(clean(row['Gender']))
+        filename_parts.append(clean(row['Crow ID']))
+    else:
+        filename_parts.append('G' + clean(row['GROUP_ID']))
+    filename_parts.append(institution_code)
+    output_filename = '_'.join(filename_parts)
+    if "cues" in str(metadata[0]['institution']):
+        output_filename += "_c"
+    output_filename += '.txt'
+    output_filename = re.sub(r'\s', r'', output_filename)
+    output_filename = re.sub(r'__', r'_NA_', output_filename)
+    if 'Series' in output_filename:
+        print('Series found in output filename: ' + output_filename + '. Skipping...')
+        return False
+
+    output_file = open(os.path.join(path, output_filename), 'w', encoding="utf-8")
+    filehash = create_file_hash(filepath)
+    results.append([filepath, filehash, output_filename])
+    for header in headers:
+        print(header, file = output_file)
     print("<End Header>", file = output_file)
     print("", file = output_file)
     for line in textfile:

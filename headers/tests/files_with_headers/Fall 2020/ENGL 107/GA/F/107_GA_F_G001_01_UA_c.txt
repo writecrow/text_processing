@@ -1,0 +1,69 @@
+<Text>
+<Student IDs: 11111,11112,11113>
+<Group ID: 001_01>
+<Institution: University of Arizona - cues>
+<Course: ENGL 107>
+<Mode: Live Online>
+<Length: 16 weeks>
+<Assignment: GA>
+<Draft: F>
+<Course Year: 2020>
+<Course Semester: Fall>
+<Instructor: 1234>
+<Section: 1000>
+</Text>
+
+<Student 1>
+<Student ID: 11111>
+<Country: Bangladesh>
+<L1: Bangla>
+<Heritage Spanish Speaker: No>
+<Year in School: 1>
+<Gender: M>
+<College: College of Science>
+<Program: Pre-Neurosci & Cognitive Sci>
+<Proficiency Exam: TOEFL>
+<Exam total: 110.0>
+<Exam reading: 30.0>
+<Exam listening: 30.0>
+<Exam speaking: 23.0>
+<Exam writing: 27.0>
+</Student 1>
+
+<Student 2>
+<Student ID: 11112>
+<Country: NA>
+<L1: English>
+<Heritage Spanish Speaker: Yes>
+<Year in School: 1>
+<Gender: F>
+<College: Eller College of Management>
+<Program: Pre-Business>
+<Proficiency Exam: NA>
+<Exam total: NA>
+<Exam reading: NA>
+<Exam listening: NA>
+<Exam speaking: NA>
+<Exam writing: NA>
+</Student 2>
+
+<Student 3>
+<Student ID: 11113>
+<Country: NA>
+<L1: English; Spanish>
+<Heritage Spanish Speaker: Yes>
+<Year in School: 1>
+<Gender: F>
+<College: College of Ag & Life Sciences>
+<Program: Family Studies & Human Dev>
+<Proficiency Exam: NA>
+<Exam total: NA>
+<Exam reading: NA>
+<Exam listening: NA>
+<Exam speaking: NA>
+<Exam writing: NA>
+</Student 3>
+
+<End Header>
+
+At last she allowed herself to go; she felt as if a rope were taken off her ankle. The afternoon was golden over the hills of Derbyshire. He stood across in the other garden, beside a bush of pale Michaelmas daisies, watching the last bees crawl into the hive. Hearing her coming, he turned to her with an easy motion, saying: “It’s the end of the run with these chaps.” Clara stood near him. Over the low red wall in front was the country and the far-off hills, all golden dim. At that moment Miriam was entering through the garden-door. She saw Clara go up to him, saw him turn, and saw them come to rest together. Something in their perfect isolation together made her know that it was accomplished between them, that they were, as she put it, married. She walked very slowly down the cinder-track of the long garden. Clara had pulled a button from a hollyhock spire, and was breaking it to get the seeds.
