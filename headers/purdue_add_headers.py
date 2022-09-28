@@ -9,9 +9,9 @@
 # Run the line below from the terminal on a Mac or command prompr on windows:
 # Mac OS example:
 # D2L
-#    python ciabatta_headers.py --directory=standardized/101 --master_file=metadata_folder/master_student_data.xlsx
+#    python purdue_add_headers.py --directory=purdue_data --master_file=modified_registrar_fall2018.xlsx --cms=d2l
 # BLACKBOARD
-#    python ciabatta_headers.py --directory=standardized/10600 --master_file=metadata_folder/purdue_registrar_data.xlsx --cms=blackboard
+#    python purdue_add_headers.py --directory=purdue_data --master_file=modified_registrar_fall2018.xlsx --cms=blackboard
 
 # Windows example:
 # D2L
