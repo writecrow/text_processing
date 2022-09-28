@@ -424,11 +424,14 @@ def add_header_to_file_blackboard(filename, metadata, results):
     target_rows = []
     for row in metadata:
         # check if that career account is in filename (that's our student!)
-        if re.search("_" + str(row['User_ID']) + "_", filename):
+        if re.search("_" + str(row['User_ID']), filename):
             # let user know that there was a match
             #print("Matched: ", "_" + career_account + "_", "is in", filename, "and adding headers...")
             target_rows.append(row)
-    results = add_header_common(filename, target_rows, results)
+    if len(target_rows) == 0:
+        print('No matching metadata found for file' + filename)
+    else:
+        results = add_header_common(filename, target_rows, results)
     return results
 
 
