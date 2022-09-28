@@ -1,0 +1,35 @@
+<Text>
+<Student IDs: 11620>
+<Group ID: NA>
+<Institution: Purdue>
+<Course: ENGL 10600>
+<Mode: Face to Face>
+<Length: 16 weeks>
+<Assignment: DA>
+<Draft: F>
+<Course Year: 2018>
+<Course Semester: Fall>
+<Instructor: 2030>
+<Section: 2032>
+</Text>
+
+<Student 1>
+<Student ID: 11620>
+<Country: NA>
+<L1: Spanish>
+<Heritage Spanish Speaker: NA>
+<Year in School: 2>
+<Gender: M>
+<College: First Year Engineering>
+<Program: Engineering First Year>
+<Proficiency Exam: NA>
+<Exam total: NA>
+<Exam reading: NA>
+<Exam listening: NA>
+<Exam speaking: NA>
+<Exam writing: NA>
+</Student 1>
+
+<End Header>
+
+In the wilderness have ever dwelt the conscientious, the free spirits, as lords of the wilderness; but in the cities dwell the well-foddered, famous wise ones--the draught-beasts. For, always, do they draw, as asses--the PEOPLE’S carts. Not that I on that account upbraid them: but serving ones do they remain, and harnessed ones, even though they glitter in golden harness. And often have they been good servants and worthy of their hire. For thus saith virtue: “If thou must be a servant, seek him unto whom thy service is most useful. The spirit and virtue of thy master shall advance by thou being his servant: thus wilt thou thyself advance with his spirit and virtue!” And verily, ye famous wise ones, ye servants of the people. Ye yourselves have advanced with the people’s spirit and virtue--and the people by you. To your honour do I say it.

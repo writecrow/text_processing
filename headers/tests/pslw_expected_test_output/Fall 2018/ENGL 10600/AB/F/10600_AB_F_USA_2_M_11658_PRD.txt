@@ -1,0 +1,35 @@
+<Text>
+<Student IDs: 11658>
+<Group ID: NA>
+<Institution: Purdue>
+<Course: ENGL 10600>
+<Mode: Face to Face>
+<Length: 16 weeks>
+<Assignment: AB>
+<Draft: F>
+<Course Year: 2018>
+<Course Semester: Fall>
+<Instructor: 2030>
+<Section: 2032>
+</Text>
+
+<Student 1>
+<Student ID: 11658>
+<Country: United States>
+<L1: English>
+<Heritage Spanish Speaker: NA>
+<Year in School: 2>
+<Gender: M>
+<College: First Year Engineering>
+<Program: Engineering First Year>
+<Proficiency Exam: NA>
+<Exam total: NA>
+<Exam reading: NA>
+<Exam listening: NA>
+<Exam speaking: NA>
+<Exam writing: NA>
+</Student 1>
+
+<End Header>
+
+In their pity was their spirit drowned; and when they swelled and o’erswelled with pity, there always floated to the surface a great folly. Eagerly and with shouts drove they their flock over their foot-bridge; as if there were but one foot-bridge to the future. Verily, those shepherds also were still of the flock. Small spirits and spacious souls had those shepherds: but, my brethren, what small domains have even the most spacious souls hitherto been. Characters of blood did they write on the way they went, and their folly taught that truth is proved by blood. But blood is the very worst witness to truth; blood tainteth the purest teaching, and turneth it into delusion and hatred of heart.

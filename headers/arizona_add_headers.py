@@ -246,6 +246,7 @@ def add_student(row, headers):
     return headers
 
 def add_header_to_file(filepath, metadata, results):
+    comma = ','
     # print('Adding headers to file ' + filepath)
     textfile = open(filepath, 'r')
     # Isolate the first row from the metadata for general text information
@@ -272,11 +273,11 @@ def add_header_to_file(filepath, metadata, results):
     else:
         group_id = 'NA'
 
-    headers = []
+
     # Build general headers.
-    headers.append("<Text>")
+    headers = []
+    headers.append('<Text>')
     ids = []
-    comma = ','
     for student in metadata:
         ids.append(str(student['Crow ID'])) 
     headers.append(add_heading('Student IDs', comma.join(ids)))
@@ -295,13 +296,16 @@ def add_header_to_file(filepath, metadata, results):
     headers.append('')
 
     # Build student(s) metadata (if the text is written by a group, there will be more than one)
-    inc = 1;
+    inc = 1
     for student in metadata:
         headers.append('<Student ' + str(inc) + '>')
         headers = add_student(student, headers)
         headers.append('</Student ' + str(inc) + '>')
         headers.append('')
-        inc+=1
+        inc += 1
+
+    headers.append('<End Header>')
+    headers.append('')
 
     # Build destintation directory
     path = os.path.join('files_with_headers', term, 'ENGL ' + course, assignment, draft)
@@ -331,10 +335,10 @@ def add_header_to_file(filepath, metadata, results):
     output_file = open(os.path.join(path, output_filename), 'w', encoding="utf-8")
     filehash = create_file_hash(filepath)
     results.append([filepath, filehash, output_filename])
+
+    # Write headers, line by line.
     for header in headers:
         print(header, file = output_file)
-    print("<End Header>", file = output_file)
-    print("", file = output_file)
     for line in textfile:
         this_line = re.sub(r'\r?\n', r'\r\n', line)
         if this_line != '\r\n':
