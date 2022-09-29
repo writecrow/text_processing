@@ -15,9 +15,9 @@
 
 # Windows example:
 # D2L
-#    python ciabatta_headers.py --directory=standardized\101 --master_file=metadata_folder\master_student_data.xlsx
+#    python python purdue_add_headers.py --directory=standardized\101 --master_file=metadata_folder\master_student_data.xlsx
 # BLACKBOARD
-#   python ciabatta_headers.py --directory=standardized\10600 --master_file=metadata_folder\purdue_registrar_data.xlsx --cms=blackboard
+#   python python purdue_add_headers.py --directory=standardized\10600 --master_file=metadata_folder\purdue_registrar_data.xlsx --cms=blackboard
 
 # imports packages
 import argparse
@@ -268,7 +268,7 @@ def get_group_id(filename):
         group = str(match.group())
         # Remove leading 'G'
         group = group[1:]
-        return group
+        return str(group)
     return False
 
 def get_output_filename(course, group_id):
@@ -300,11 +300,11 @@ def get_course_data(row, filename_parts):
         print(row)
         print("This student does not have a Crow ID")
         exit()
-    course["instructor"] = clean(row[column_specs["instructor"]])
+    course["instructor"] = clean(int(row[column_specs["instructor"]]))
     course["mode"] = clean(row[column_specs["mode"]])
     course["length"] = clean(row[column_specs["length"]])
     course["institution_code"] = clean(row[column_specs["institution_code"]])
-    course["section"] = clean(row["section"])
+    course["section"] = clean(int(row["section"]))
     course["institution"] = clean(row["institution"])
     course["country"] = clean(row[column_specs["country"]])
     course["year_in_school"] = row[column_specs["year_in_school"]]
@@ -317,17 +317,18 @@ def get_course_data(row, filename_parts):
     country_code = clean(country_code)
     # replaces "NaN" to "NAN" for the country_code variable
     course["country_code"] = re.sub(r"NaN", r"NAN", country_code)
-    course["name"] = clean(row[column_specs["course"]])
+    course["name"] = clean(int(row[column_specs["course"]]))
     course["assignment"] = filename_parts[-2][:2]
     draft = filename_parts[-2][2:]
     # replaces "D" for draft to an empty space
     course["draft"] = re.sub("D", "", draft)
     course["term"] = clean(filename_parts[-4])
     # creates a semester variable from the first element of the term variable
+    term_parts = re.split(' |_', course["term"])
     # assuming term is "Spring 2019" for example
-    course["semester"] = course["term"].split()[0]
+    course["semester"] = term_parts[0]
     # creates a year variable from the second element of the term variable
-    course["year"] = course["term"].split()[1]
+    course["year"] = term_parts[1]
     return course
 
 
@@ -345,7 +346,7 @@ def add_header_common(filepath, metadata, results):
     # (Texts written by a group will have multiple rows)
     first_row = metadata[0]
     if len(metadata) != 1:
-        group_id = first_row['GROUP_ID']
+        group_id = str(first_row['CROW_GROUP_ID'])
     else:
         group_id = 'NA'
     course = get_course_data(first_row, filename_parts)
@@ -446,8 +447,12 @@ def add_header_to_file_blackboard(filename, metadata, results):
 def add_header_to_file_d2l(filename, master, results):
     # splits the filename by a dash with a space "- "
     filename_parts = filename.split("- ")
+    if len(filename_parts) > 1:
+        student_part = filename_parts[1]
+    else:
+        student_part = filename
     # removes ".txt" extension from the filename
-    student_name = re.sub(r"\.txt", r"", filename_parts[1])
+    student_name = re.sub(r"\.txt", r"", student_part)
     # removes any extra spaces from the filename
     student_name = re.sub(r"\s+", r" ", student_name)
     # checks to see if the last element of the student name is "-"
