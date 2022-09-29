@@ -65,9 +65,7 @@ column_specs = {
 }
 fixed_expressions = {"course_prefix": "ENGL"}
 
-# function that removes leading spaces and replaces "NaN" with "NA"
-
-
+# Remove leading spaces, replace "NaN" with "NA", enforce string
 def clean(my_string):
     if (type(my_string)) is not str:
         my_string = str(my_string)
@@ -76,9 +74,7 @@ def clean(my_string):
     my_string = re.sub(r'NaN', r'NA', my_string)
     return my_string
 
-# Function to create the formatted header.
-
-
+# Create a formatted header.
 def add_heading(key, value):
     if value == "":
         value = "NA"
@@ -257,12 +253,22 @@ def get_student_data(row, headers):
     headers.append(add_heading("Exam writing", exam_writing))
     return headers
 
-# Look for a string like G001_01.
+# Look for a string like 001_01.
 def get_group_id(filename):
-    regex = r"G(\d+)_(\d+)"
+    regex = r"_(\d\d\d)_(\d\d)"
     match = re.search(regex, filename)
     if match is not None:
-        return match.group()
+        group = str(match.group())
+        # Remove leading underscore
+        group = group[1:]
+        return group
+    regex = r"G(\d\d\d)_(\d\d)"
+    match = re.search(regex, filename)
+    if match is not None:
+        group = str(match.group())
+        # Remove leading 'G'
+        group = group[1:]
+        return group
     return False
 
 def get_output_filename(course, group_id):
@@ -375,7 +381,7 @@ def add_header_common(filepath, metadata, results):
         ids.append(clean(student[column_specs["crow_id"]]))
 
     headers.append(add_heading("Student IDs", comma.join(ids)))
-    headers.append(add_heading("Group ID", "NA"))
+    headers.append(add_heading("Group ID", group_id))
     headers.append(add_heading("Institution", course["institution"]))
     headers.append(add_heading("Course", fixed_expressions["course_prefix"] + " " + course["name"]))
     headers.append(add_heading("Mode", course["mode"]))
@@ -429,7 +435,7 @@ def add_header_to_file_blackboard(filename, metadata, results):
             #print("Matched: ", "_" + career_account + "_", "is in", filename, "and adding headers...")
             target_rows.append(row)
     if len(target_rows) == 0:
-        print('No matching metadata found for file' + filename)
+        print('* No matching metadata found for file ' + filename)
     else:
         results = add_header_common(filename, target_rows, results)
     return results
@@ -501,9 +507,13 @@ def add_headers_recursive(directory, metadata, cms):
             if group_id is not False:
                 target_rows = []
                 for row in data:
-                    search = "G" + str(row['GROUP_ID'])
+                    search = str(row['GROUP_ID'])
                     if search == group_id:
                         target_rows.append(row)
+                if len(target_rows) == 0:
+                    print(name)
+                    print(group_id)
+                    exit()
                 results = add_header_common(os.path.join(dirpath, name), target_rows, results)
             elif cms == "d2l":
                 # calls function that add headers to an individual file specific to d2l
