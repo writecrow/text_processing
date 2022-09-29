@@ -38,7 +38,7 @@ def clean_names_from_line(original_line):
     cleaned_line = re.sub(r'name|net\s?id|id|student|professor|prof\.|teacher|instructor|Mr\.|Dr\.|Mr?s\.|[A-Z]\.|\s[A-Za-z]\s', r'', cleaned_line, flags=re.IGNORECASE)
 
     # removes comma, period, colon, and parentheses after removing titles and other identifiers
-    cleaned_line = re.sub(r'(,|\.|\:|\(|\))', r'', cleaned_line)
+    cleaned_line = re.sub(r'(,|&|and|\.|\:|\(|\))', r'', cleaned_line)
 
     # removes up to three capitalized words (first, middle, last)
     cleaned_line = re.sub(r'(([A-Z][a-z]+){1,3})', r'', cleaned_line)
