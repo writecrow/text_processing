@@ -2,3 +2,4 @@
 conversion/convert_to_utf8/output/
 .vscode
 __pycache__
+*.zip
