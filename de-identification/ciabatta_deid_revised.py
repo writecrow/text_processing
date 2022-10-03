@@ -104,8 +104,9 @@ def deidentify_file(filename, overwrite=False):
 
             found_text_body=False
             # loops through every line in the file
-
+            
             for line in textfile:
+
                 # strips spaces at the end of the line
                 line_nobreaks = line.strip()
 
@@ -150,7 +151,7 @@ def deidentify_file(filename, overwrite=False):
                         # writes out line and linebreak for cross-platform use
                         new_line3 = re.sub('(\r+)?\n', os.linesep, new_line2)
                         output_file.write(new_line3.strip() + '\n')
-                        if '</Text>' in new_line3 or '<End Header>' in new_line3:
+                        if '</Text>' in new_line3 or '<End Header>' in new_line3 or '</Student' in new_line3:
                             output_file.write(os.linesep)
         except:
             print("File " + filename + " could not be opened. Check if the file is UTF-8 encoded. If not, use the Corpus Text Processor Tool.")

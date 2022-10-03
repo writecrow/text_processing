@@ -318,10 +318,12 @@ def get_course_data(row, filename_parts):
     # replaces "NaN" to "NAN" for the country_code variable
     course["country_code"] = re.sub(r"NaN", r"NAN", country_code)
     course["name"] = clean(int(row[column_specs["course"]]))
-    course["assignment"] = filename_parts[-2][:2]
-    draft = filename_parts[-2][2:]
-    # replaces "D" for draft to an empty space
-    course["draft"] = re.sub("D", "", draft)
+    ## The assignment code is everything in the third-to-last
+    ## part of the path minus the final 2 characters.
+    course["assignment"] = filename_parts[-2][:-2]
+    # The draft is the final character in the third-to-last
+    ## part of the path.
+    course['draft'] = filename_parts[-2][-1]
     course["term"] = clean(filename_parts[-4])
     # creates a semester variable from the first element of the term variable
     term_parts = re.split(' |_', course["term"])
