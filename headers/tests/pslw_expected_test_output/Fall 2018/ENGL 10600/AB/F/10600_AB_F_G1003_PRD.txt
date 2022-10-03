@@ -1,6 +1,6 @@
 <Text>
 <Student IDs: 11568,11620>
-<Group ID: NA>
+<Group ID: 1003>
 <Institution: Purdue>
 <Course: ENGL 10600>
 <Mode: Face to Face>
