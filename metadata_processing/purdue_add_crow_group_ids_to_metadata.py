@@ -1,10 +1,21 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
-## Description
-# Given a student metadata file and a separate file of spreadsheets with students and group IDs, generate a unique Crow group ID and add it to the metadata file.
-
-# Usage example:
+## DESCRIPTION
+# This script will generate new Crow Group IDs for a spreadsheet of student metadata.
+# It can either retrieve institutional group IDs associated with students from a
+# standalone spreadsheet and populate them both into the metadata spreadsheet,
+# or if the metadata spreadsheet already has the institutional group IDs, it can
+# simply generate new Crow Group IDs based on those.
+#
+## USAGE
+#
+# Usage example for a metadata spreadsheet that already has institutional group IDs:
+#    python purdue_add_crow_group_ids_to_metadata.py --metadata=metadata.xlsx
+#
+# Usage example for a metadata spreadsheet without insitutional IDs
+# (in which case a separate spreadsheet with "User_ID" and "Group Number" columns
+# must be provided)
 #    python purdue_add_crow_group_ids_to_metadata.py --metadata=metadata.xlsx --group_ids=group_ids.xlsx
 
 import argparse
