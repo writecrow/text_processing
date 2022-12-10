@@ -26,7 +26,6 @@ import sys
 import re
 import os
 import pandas
-import yaml
 
 # lists the required arguments (e.g. --directory=) sent to the script
 parser = argparse.ArgumentParser(description="Add Headers to Individual Textfile")
@@ -60,6 +59,7 @@ column_specs = {
     "mode": "mode_of_course",
     "program": "PROGRAM_DESC",
     "section": "Class Section",
+    "subject": "SUBJECT",
     "term": "ACADEMIC_PERIOD_DESC",
     "year_in_school": "year_in_school",
 }
@@ -317,14 +317,20 @@ def get_course_data(row, filename_parts):
     country_code = clean(country_code)
     # replaces "NaN" to "NAN" for the country_code variable
     course["country_code"] = re.sub(r"NaN", r"NAN", country_code)
+    course["subject"] = clean(row[column_specs["subject"]])
     course["name"] = clean(int(row[column_specs["course"]]))
-    ## The assignment code is everything in the third-to-last
-    ## part of the path minus the final 2 characters.
-    course["assignment"] = filename_parts[-2][:-2]
-    # The draft is the final character in the third-to-last
-    ## part of the path.
-    course['draft'] = filename_parts[-2][-1]
-    course["term"] = clean(filename_parts[-4])
+    if (len(filename_parts[-2]) >= 4):
+        ## The assignment code is everything in the second-to-last
+        ## part of the path minus the final 2 characters.
+        course["assignment"] = filename_parts[-2][:-2]
+        # The draft is the final character in the second-to-last
+        ## part of the path.
+        course['draft'] = filename_parts[-2][-1]
+    else:
+        ## Assume the draft is Final.
+        course["assignment"] = filename_parts[-2]
+        course['draft'] = "F"
+    course["term"] = clean(row[column_specs["term"]])
     # creates a semester variable from the first element of the term variable
     term_parts = re.split(' |_', course["term"])
     # assuming term is "Spring 2019" for example
@@ -364,7 +370,7 @@ def add_header_common(filepath, metadata, results):
         cwd,
         new_folder,
         course["term"],
-        fixed_expressions["course_prefix"] + " " + course["name"],
+        course["subject"] + " " + course["name"],
         course["assignment"],
         course["draft"],
     )
@@ -515,13 +521,16 @@ def add_headers_recursive(directory, metadata, cms):
                 target_rows = []
                 for row in data:
                     search = str(row['GROUP_ID'])
-                    if search == group_id:
+                    group_id = (str(group_id))
+                    if re.search(group_id, row['GROUP_ID']):
                         target_rows.append(row)
                 if len(target_rows) == 0:
+                    print("No group ID for the following: ")
                     print(name)
                     print(group_id)
-                    exit()
-                results = add_header_common(os.path.join(dirpath, name), target_rows, results)
+                    # exit()
+                else:
+                    results = add_header_common(os.path.join(dirpath, name), target_rows, results)
             elif cms == "d2l":
                 # calls function that add headers to an individual file specific to d2l
                 results = add_header_to_file_d2l(os.path.join(dirpath, name), metadata, results)
